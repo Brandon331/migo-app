@@ -5,9 +5,10 @@ import { OfflineBanner } from '../components/OfflineBanner.jsx';
 import { PathView } from '../components/PathView.jsx';
 import { Mascot } from '../components/Mascot.jsx';
 import { StreakStrip } from '../components/StreakStrip.jsx';
+import { GoalWizard } from '../components/GoalWizard.jsx';
 
 export function GoalsList({ isOnline, isSyncing }) {
-  const [newGoalTitle, setNewGoalTitle] = useState('');
+  const [wizardOpen, setWizardOpen] = useState(false);
   const [justCompletedId, setJustCompletedId] = useState(null);
 
   const goals = useLiveQuery(() => db.goals.orderBy('updatedAt').reverse().toArray(), []);
@@ -27,34 +28,33 @@ export function GoalsList({ isOnline, isSyncing }) {
 
   const mascotMessage = useMemo(() => {
     if (loading) return null;
-    if (visibleGoals.length === 0) return '¡Hola! Escribe tu primera meta y te armo el camino.';
+    if (visibleGoals.length === 0) return '¡Hola! Toca "+ Nueva meta" y te armo el camino.';
     if (activeCount === 0) return '¡Wow, todo completado! Hora de una meta nueva 🎉';
     return 'Vas bien. Un paso chico a la vez.';
   }, [loading, visibleGoals, activeCount]);
 
-  async function handleAddGoal(e) {
-    e.preventDefault();
-    const title = newGoalTitle.trim();
+  async function handleWizardComplete({ title, durationLabel, weeklyCommitment }) {
     if (!title) return;
-    setNewGoalTitle('');
-
     const tempId = `local-${crypto.randomUUID()}`;
+    const now = new Date().toISOString();
 
     await db.transaction('rw', db.goals, db.pendingChanges, async () => {
       await db.goals.put({
         id: tempId,
         title,
         status: 'active',
-        updatedAt: new Date().toISOString(),
+        durationLabel,
+        weeklyCommitment,
+        updatedAt: now,
       });
 
       await db.pendingChanges.add({
         entityType: 'goal',
         entityId: tempId,
         action: 'create',
-        payload: { title },
-        clientUpdatedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
+        payload: { title, durationLabel, weeklyCommitment },
+        clientUpdatedAt: now,
+        createdAt: now,
       });
     });
   }
@@ -75,9 +75,6 @@ export function GoalsList({ isOnline, isSyncing }) {
         createdAt: now,
       });
 
-      // Si era el último pendiente de la etapa, la marcamos completada aquí
-      // mismo (optimista): el servidor confirmará y además desbloqueará la
-      // siguiente etapa cuando haya conexión.
       if (completed) {
         const siblings = await db.substeps.where('milestoneId').equals(step.milestoneId).toArray();
         const allDone = siblings.every((s) => (s.id === step.id ? true : s.completed));
@@ -160,15 +157,9 @@ export function GoalsList({ isOnline, isSyncing }) {
 
       {!isOnline && <OfflineBanner />}
 
-      <form className="new-goal-form" onSubmit={handleAddGoal}>
-        <input
-          type="text"
-          placeholder="Ej: aprender a tocar guitarra"
-          value={newGoalTitle}
-          onChange={(e) => setNewGoalTitle(e.target.value)}
-        />
-        <button type="submit">Agregar</button>
-      </form>
+      <button className="new-goal-button" onClick={() => setWizardOpen(true)}>
+        + Nueva meta
+      </button>
 
       {loading && (
         <div aria-hidden="true">
@@ -180,7 +171,7 @@ export function GoalsList({ isOnline, isSyncing }) {
       {!loading && visibleGoals.length === 0 && (
         <div className="empty-state">
           <span className="glyph">🧭</span>
-          <p>Todavía no tienes metas. Escribe la primera arriba y Migo te traza el camino.</p>
+          <p>Todavía no tienes metas. Toca "+ Nueva meta" y Migo te traza el camino.</p>
         </div>
       )}
 
@@ -211,6 +202,10 @@ export function GoalsList({ isOnline, isSyncing }) {
             );
           })}
         </div>
+      )}
+
+      {wizardOpen && (
+        <GoalWizard onComplete={handleWizardComplete} onCancel={() => setWizardOpen(false)} />
       )}
     </div>
   );

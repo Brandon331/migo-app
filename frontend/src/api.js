@@ -36,7 +36,8 @@ export const api = {
 
   fetchGoals: () => request('/goals'),
 
-  createGoal: (title) => request('/goals', { method: 'POST', body: { title } }),
+  createGoal: (title, durationLabel, weeklyCommitment) =>
+    request('/goals', { method: 'POST', body: { title, durationLabel, weeklyCommitment } }),
 
   retryPath: (goalId) => request(`/goals/${goalId}/retry-path`, { method: 'POST' }),
 
@@ -52,6 +53,7 @@ export async function loginAndPersist(email, password) {
   const data = await api.login(email, password);
   await setSession({
     userId: data.user.id,
+    email: data.user.email,
     accessToken: data.accessToken,
     refreshToken: data.refreshToken,
     lastSyncedAt: null,
@@ -63,6 +65,7 @@ export async function registerAndPersist(email, password) {
   const data = await api.register(email, password);
   await setSession({
     userId: data.user.id,
+    email: data.user.email,
     accessToken: data.accessToken,
     refreshToken: data.refreshToken,
     lastSyncedAt: null,

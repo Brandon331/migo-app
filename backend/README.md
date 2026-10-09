@@ -6,9 +6,22 @@
 npm install
 cp .env.example .env
 # llena DATABASE_URL y OPENAI_API_KEY en .env
-npm run migrate   # corre 001, 002 y 003 en orden
+npm run migrate   # corre 001, 002, 003 y 004 en orden
 npm run dev
 ```
+
+## Última versión: duración, fechas y pacing
+
+- `POST /goals` ahora recibe también `durationLabel` (`1_week` | `1_month` | `3_months` |
+  `6_months_plus`) y `weeklyCommitment` (`low` | `medium` | `high`) — las respuestas del
+  asistente de preguntas del frontend.
+- Con eso se calcula `target_date` en la meta, y `due_date` en cada etapa (repartiendo la
+  duración total proporcionalmente). Ver `src/utils/timeline.js`.
+- Los prompts de IA (`src/services/ai.service.js`) usan esas respuestas para decidir cuántas
+  etapas generar y qué tan grandes son los pasos — no es lo mismo una meta a 1 semana que a
+  6 meses, ni alguien con 1 hora libre que alguien con 6.
+- Las claves de `durationLabel`/`weeklyCommitment` deben coincidir exactamente con las que
+  usa el frontend en `src/wizardOptions.js` — si agregas una opción nueva, actualiza ambos.
 
 ## Qué cambió en esta versión
 

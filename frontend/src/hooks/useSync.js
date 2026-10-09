@@ -48,6 +48,10 @@ async function saveGoalWithPath(goal) {
     user_id: goal.user_id,
     title: goal.title,
     status: goal.status,
+    durationLabel: goal.duration_label,
+    weeklyCommitment: goal.weekly_commitment,
+    targetDate: goal.target_date,
+    createdAt: goal.created_at,
     updatedAt: goal.updated_at,
   });
 
@@ -60,6 +64,7 @@ async function saveGoalWithPath(goal) {
       orderIndex: m.order_index,
       status: m.status,
       pending_ai_breakdown: m.pending_ai_breakdown,
+      dueDate: m.due_date,
       updatedAt: m.updated_at,
     });
 
@@ -87,9 +92,9 @@ async function pushCreatedGoals() {
 
   for (const change of pendingCreates) {
     const tempId = change.entityId;
-    const { title } = change.payload;
+    const { title, durationLabel, weeklyCommitment } = change.payload;
 
-    const created = await api.createGoal(title);
+    const created = await api.createGoal(title, durationLabel, weeklyCommitment);
 
     await db.transaction('rw', db.goals, db.milestones, db.substeps, db.pendingChanges, async () => {
       await db.goals.delete(tempId);
@@ -148,6 +153,10 @@ async function pullFromServer() {
         user_id: goal.user_id,
         title: goal.title,
         status: goal.status,
+        durationLabel: goal.duration_label,
+        weeklyCommitment: goal.weekly_commitment,
+        targetDate: goal.target_date,
+        createdAt: goal.created_at,
         updatedAt: goal.updated_at,
       });
     }
@@ -161,6 +170,7 @@ async function pullFromServer() {
         orderIndex: m.order_index,
         status: m.status,
         pending_ai_breakdown: m.pending_ai_breakdown,
+        dueDate: m.due_date,
         updatedAt: m.updated_at,
       });
     }

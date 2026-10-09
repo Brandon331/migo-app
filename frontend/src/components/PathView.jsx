@@ -1,14 +1,65 @@
+import { useState } from 'react';
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dateStr);
+  due.setHours(0, 0, 0, 0);
+  return Math.round((due - today) / (1000 * 60 * 60 * 24));
+}
+
+function DueBadge({ dueDate }) {
+  const days = daysUntil(dueDate);
+  if (days === null) return null;
+
+  if (days < 0) {
+    return <span className="due-badge is-overdue">Atrasado {Math.abs(days)}d</span>;
+  }
+  if (days === 0) {
+    return <span className="due-badge is-today">Vence hoy</span>;
+  }
+  if (days <= 3) {
+    return <span className="due-badge is-soon">{days}d restantes</span>;
+  }
+  return <span className="due-badge">{days}d restantes</span>;
+}
+
 export function PathView({ goal, milestones, substepsByMilestone, onToggleSubstep, onDeleteGoal, onArchiveGoal }) {
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
   const totalMilestones = milestones.length;
   const completedMilestones = milestones.filter((m) => m.status === 'completed').length;
   const isGoalComplete = totalMilestones > 0 && completedMilestones === totalMilestones;
   const isArchived = goal.status === 'archived';
 
+  const daysLeftToTarget = daysUntil(goal.targetDate);
+
+  function handleDeleteClick() {
+    if (confirmingDelete) {
+      onDeleteGoal(goal);
+    } else {
+      setConfirmingDelete(true);
+      setTimeout(() => setConfirmingDelete(false), 3000);
+    }
+  }
+
   return (
     <article className={`goal ${isGoalComplete ? 'is-complete' : ''}`}>
-      <h3 className={`goal-title ${isGoalComplete ? 'is-complete' : ''}`}>
-        <span className={isGoalComplete ? 'strike' : ''}>{goal.title}</span>
-      </h3>
+      <div className="goal-top">
+        <h3 className={`goal-title ${isGoalComplete ? 'is-complete' : ''}`}>
+          <span className={isGoalComplete ? 'strike' : ''}>{goal.title}</span>
+        </h3>
+        {!isGoalComplete && daysLeftToTarget !== null && (
+          <span className={`goal-deadline ${daysLeftToTarget < 0 ? 'is-overdue' : ''}`}>
+            {daysLeftToTarget < 0
+              ? `${Math.abs(daysLeftToTarget)}d tarde`
+              : daysLeftToTarget === 0
+              ? 'Meta hoy'
+              : `${daysLeftToTarget}d para tu meta`}
+          </span>
+        )}
+      </div>
 
       {totalMilestones === 0 && (
         <p className="goal-pending">
@@ -35,7 +86,10 @@ export function PathView({ goal, milestones, substepsByMilestone, onToggleSubste
                 </div>
 
                 <div className="trail-content">
-                  <p className={`trail-title is-${milestone.status}`}>{milestone.title}</p>
+                  <div className="trail-title-row">
+                    <p className={`trail-title is-${milestone.status}`}>{milestone.title}</p>
+                    {milestone.status === 'active' && <DueBadge dueDate={milestone.dueDate} />}
+                  </div>
                   {milestone.status !== 'completed' && milestone.description && (
                     <p className={`trail-desc ${milestone.status === 'locked' ? 'is-locked' : ''}`}>
                       {milestone.description}
@@ -86,8 +140,8 @@ export function PathView({ goal, milestones, substepsByMilestone, onToggleSubste
               Archivar
             </button>
           )}
-          <button className="ghost" onClick={() => onDeleteGoal(goal)}>
-            Eliminar
+          <button className={`ghost ${confirmingDelete ? 'is-confirming' : ''}`} onClick={handleDeleteClick}>
+            {confirmingDelete ? '¿Seguro? Toca de nuevo' : 'Eliminar'}
           </button>
         </div>
       )}

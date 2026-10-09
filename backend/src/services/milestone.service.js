@@ -1,29 +1,36 @@
 import { query } from '../db/pool.js';
 import { generateMilestones, breakDownMilestone } from './ai.service.js';
+import { durationToDays, addDays, toDateOnly } from '../utils/timeline.js';
 
 /**
- * Le pide a la IA el camino completo y lo guarda. La primera etapa queda
- * "active" (y se le pide su desglose de una vez); el resto queda "locked".
- * Si la IA falla, igual deja la meta usable: el usuario puede reintentar.
+ * Le pide a la IA el camino completo y lo guarda, repartiendo la fecha límite
+ * de cada etapa proporcionalmente sobre la duración total que eligió el usuario.
+ * La primera etapa queda "active" (y se le pide su desglose de una vez);
+ * el resto queda "locked".
  */
-export async function createPathForGoal(goalId, goalTitle) {
-  const milestonesData = await generateMilestones(goalTitle);
+export async function createPathForGoal(goalId, goalTitle, durationLabel, weeklyCommitment, startDate) {
+  const milestonesData = await generateMilestones(goalTitle, durationLabel, weeklyCommitment);
+  const totalDays = durationToDays(durationLabel);
+  const start = startDate ? new Date(startDate) : new Date();
+  const perMilestoneDays = milestonesData.length > 0 ? totalDays / milestonesData.length : totalDays;
 
   const inserted = [];
   for (let i = 0; i < milestonesData.length; i++) {
     const m = milestonesData[i];
     const status = i === 0 ? 'active' : 'locked';
+    const dueDate = toDateOnly(addDays(start, perMilestoneDays * (i + 1)));
+
     const result = await query(
-      `INSERT INTO milestones (goal_id, title, description, order_index, status, pending_ai_breakdown)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [goalId, m.title, m.description || null, i, status, i === 0]
+      `INSERT INTO milestones (goal_id, title, description, order_index, status, pending_ai_breakdown, due_date)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [goalId, m.title, m.description || null, i, status, i === 0, dueDate]
     );
     inserted.push(result.rows[0]);
   }
 
   if (inserted.length > 0) {
     const first = inserted[0];
-    const substeps = await breakdownAndSaveMilestone(first.id, goalTitle, first.title);
+    const substeps = await breakdownAndSaveMilestone(first.id, goalTitle, first.title, weeklyCommitment);
     first.substeps = substeps;
     first.pending_ai_breakdown = false;
   }
@@ -35,8 +42,8 @@ export async function createPathForGoal(goalId, goalTitle) {
   return inserted;
 }
 
-export async function breakdownAndSaveMilestone(milestoneId, goalTitle, milestoneTitle) {
-  const stepsData = await breakDownMilestone(goalTitle, milestoneTitle);
+export async function breakdownAndSaveMilestone(milestoneId, goalTitle, milestoneTitle, weeklyCommitment) {
+  const stepsData = await breakDownMilestone(goalTitle, milestoneTitle, weeklyCommitment);
 
   const inserted = [];
   for (let i = 0; i < stepsData.length; i++) {
@@ -59,7 +66,6 @@ export async function breakdownAndSaveMilestone(milestoneId, goalTitle, mileston
 /**
  * Se llama cuando se detecta que todos los substeps de la etapa activa
  * quedaron completos: la cierra, activa la siguiente y le pide su desglose.
- * Si no hay siguiente etapa, la meta completa queda "completed".
  */
 export async function advanceMilestoneIfComplete(milestoneId) {
   const milestoneResult = await query('SELECT * FROM milestones WHERE id = $1', [milestoneId]);
@@ -75,10 +81,9 @@ export async function advanceMilestoneIfComplete(milestoneId) {
   ]);
   if (total.rows[0].n === 0 || pending.rows[0].n > 0) return null;
 
-  await query(
-    "UPDATE milestones SET status = 'completed', updated_at = now() WHERE id = $1",
-    [milestoneId]
-  );
+  await query("UPDATE milestones SET status = 'completed', updated_at = now() WHERE id = $1", [
+    milestoneId,
+  ]);
 
   const goalResult = await query('SELECT * FROM goals WHERE id = $1', [milestone.goal_id]);
   const goal = goalResult.rows[0];
@@ -90,9 +95,7 @@ export async function advanceMilestoneIfComplete(milestoneId) {
   const next = nextResult.rows[0];
 
   if (!next) {
-    await query("UPDATE goals SET status = 'completed', updated_at = now() WHERE id = $1", [
-      goal.id,
-    ]);
+    await query("UPDATE goals SET status = 'completed', updated_at = now() WHERE id = $1", [goal.id]);
     return { goalCompleted: true };
   }
 
@@ -102,10 +105,9 @@ export async function advanceMilestoneIfComplete(milestoneId) {
   );
 
   try {
-    await breakdownAndSaveMilestone(next.id, goal.title, next.title);
+    await breakdownAndSaveMilestone(next.id, goal.title, next.title, goal.weekly_commitment);
   } catch (err) {
     console.error('Error desglosando siguiente etapa:', err.message);
-    // pending_ai_breakdown se queda en true; el cliente puede reintentar
   }
 
   return { nextMilestoneId: next.id };

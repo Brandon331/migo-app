@@ -8,7 +8,23 @@ cp .env.example .env
 npm run dev
 ```
 
-## Qué cambió en esta versión
+## Última versión: asistente de preguntas, fechas y secciones
+
+- **Nueva meta = asistente animado** (`GoalWizard.jsx`): meta → duración (opción múltiple) →
+  tiempo disponible por semana (opción múltiple) → círculo de carga. Una pregunta a la vez,
+  con transición. El botón "+ Nueva meta" lo abre.
+- **Fechas reales:** cada meta tiene `targetDate` y cada etapa activa `dueDate`, calculados
+  por el backend a partir de tus respuestas. `PathView.jsx` muestra "X días restantes" o
+  "Atrasado" — como se calcula contra la fecha de hoy en cada render, si abres la app dos
+  días después se ve actualizado solo, sin que nada lo "empuje".
+- **App dividida en secciones** (`BottomNav.jsx` + `App.jsx`): Camino (lo de siempre),
+  Progreso (`ProgressPage.jsx`: racha actual, racha más larga, pasos completados, gráfica de
+  los últimos 14 días, % de avance por meta), Perfil (`ProfilePage.jsx`: correo, cerrar
+  sesión).
+- `src/wizardOptions.js` tiene las opciones del asistente — sus `value` deben coincidir con
+  las que espera el backend (`src/utils/timeline.js` ahí).
+
+## Qué cambió en la versión anterior
 
 **Rediseño completo de identidad:** paleta vibrante (violeta/coral/amarillo), tipografía
 Baloo 2 (display, redondeada) + Inter, mascota animada (`Mascot.jsx`) con mensajes según tu

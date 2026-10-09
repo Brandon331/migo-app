@@ -11,7 +11,7 @@ milestonesRouter.post('/:id/retry-breakdown', async (req, res) => {
   const { id } = req.params;
 
   const milestoneResult = await query(
-    `SELECT m.*, g.title AS goal_title, g.user_id
+    `SELECT m.*, g.title AS goal_title, g.user_id, g.weekly_commitment
      FROM milestones m JOIN goals g ON g.id = m.goal_id
      WHERE m.id = $1`,
     [id]
@@ -22,6 +22,11 @@ milestonesRouter.post('/:id/retry-breakdown', async (req, res) => {
     return res.status(404).json({ error: 'Etapa no encontrada' });
   }
 
-  const substeps = await breakdownAndSaveMilestone(milestone.id, milestone.goal_title, milestone.title);
+  const substeps = await breakdownAndSaveMilestone(
+    milestone.id,
+    milestone.goal_title,
+    milestone.title,
+    milestone.weekly_commitment
+  );
   res.json({ ...milestone, substeps });
 });

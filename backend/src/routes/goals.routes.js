@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { query } from '../db/pool.js';
 import { createPathForGoal } from '../services/milestone.service.js';
+import { durationToDays, addDays, toDateOnly } from '../utils/timeline.js';
 
 export const goalsRouter = Router();
 
@@ -45,20 +46,23 @@ goalsRouter.get('/', async (req, res) => {
 // POST /goals -> crea la meta, genera el camino completo con IA,
 // y desglosa solo la primera etapa en pasos chicos
 goalsRouter.post('/', async (req, res) => {
-  const { title } = req.body;
+  const { title, durationLabel, weeklyCommitment } = req.body;
   if (!title) {
     return res.status(400).json({ error: 'title es requerido' });
   }
 
+  const targetDate = toDateOnly(addDays(new Date(), durationToDays(durationLabel)));
+
   const goalResult = await query(
-    'INSERT INTO goals (user_id, title) VALUES ($1, $2) RETURNING *',
-    [req.userId, title]
+    `INSERT INTO goals (user_id, title, duration_label, weekly_commitment, target_date)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [req.userId, title, durationLabel || null, weeklyCommitment || null, targetDate]
   );
   const goal = goalResult.rows[0];
 
   let milestones = [];
   try {
-    milestones = await createPathForGoal(goal.id, title);
+    milestones = await createPathForGoal(goal.id, title, durationLabel, weeklyCommitment, goal.created_at);
   } catch (err) {
     console.error('Error generando el camino con IA:', err.message);
     // la meta queda creada sin camino; el cliente puede reintentar
@@ -84,7 +88,13 @@ goalsRouter.post('/:id/retry-path', async (req, res) => {
     return res.status(409).json({ error: 'Esta meta ya tiene un camino generado' });
   }
 
-  const milestones = await createPathForGoal(goal.id, goal.title);
+  const milestones = await createPathForGoal(
+    goal.id,
+    goal.title,
+    goal.duration_label,
+    goal.weekly_commitment,
+    goal.created_at
+  );
   res.json({ ...goal, milestones });
 });
 
