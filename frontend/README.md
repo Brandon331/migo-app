@@ -8,7 +8,34 @@ cp .env.example .env
 npm run dev
 ```
 
-## Última versión: chat con Migo, paleta nueva y personalidad
+## Última versión: inicio con Migo, camino por semanas/meses, progreso por meta
+
+- **Nueva pantalla de inicio (`HomePage.jsx`), pestaña "Migo":** el personaje, su nombre, una
+  frase suya que menciona tus metas reales (`migoPhrases.js`, por ejemplo "¿Cómo vas con
+  'Aprender guitarra'?"), la barra de vitalidad, y un botón para ir a "Metas".
+- **Barra de vitalidad (`vitality.js` + `VitalityBar.jsx`):** sube poco a poco cada día que
+  avanzas en algo, baja poco a poco cada día que no. Se calcula fresca del historial, nada
+  que sincronizar.
+- **"Metas" ahora es su propia pestaña**, separada de "Migo". Cada meta en la lista es
+  colapsable (toca el encabezado para achicarla a solo título + % de avance).
+- **Camino por semanas o meses, pantalla aparte (`GoalPathScreen.jsx`):** desde "Ver camino
+  completo" en cada meta, abre una vista dedicada que agrupa las etapas por semana (metas
+  cortas) o por mes (metas largas), usando la fecha de cada etapa (`pathGrouping.js`).
+- **Contador de días con ritmo real (`dateHelpers.js`):** compara cuánto tiempo ya pasó
+  contra cuánto has avanzado — si vas lento aunque falten días, el badge se pone en amarillo
+  y dice "vas atrasado", no solo cuenta hacia atrás a ciegas.
+- **Progreso por meta en vez de una gráfica genérica:** `ProgressPage.jsx` ya no tiene una
+  barra de actividad global de 14 días — ahora cada meta tiene la suya, junto a su % de
+  avance.
+- **Chats por meta:** desde cualquier meta puedes "Hablar con Migo" de esa meta en
+  específico — es un hilo separado del chat general, con su propio contexto (`goalId` en
+  `chat_messages` del backend). La pestaña "Chat" muestra chips para saltar al hilo de cada
+  meta activa.
+- **Responsive:** el login ya no se ve pegado a los bordes (le faltaba padding propio). El
+  chat usa `dvh` en vez de `vh` para que no se encoja raro cuando aparece el teclado en
+  móvil, y el input queda fijo abajo sin saltos.
+
+## Versión anterior: chat con Migo, paleta nueva y personalidad
 
 - **Nueva pestaña "Migo" (chat):** `ChatPage.jsx` — habla con Migo sobre tus metas, pide
   consejo, o pregúntale por qué algo no avanza. Usa el contexto real de tus metas (lo arma

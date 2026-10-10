@@ -19,6 +19,15 @@ db.version(2).stores({
   chatMessages: 'id, createdAt',
 });
 
+db.version(3).stores({
+  goals: 'id, status, updatedAt',
+  milestones: 'id, goalId, status, orderIndex, updatedAt',
+  substeps: 'id, milestoneId, completed, completedAt, updatedAt',
+  pendingChanges: '++localId, entityType, entityId, action, createdAt',
+  session: 'key',
+  chatMessages: 'id, goalId, createdAt',
+});
+
 export async function getSession() {
   const rows = await db.session.toArray();
   return rows[0] || null;

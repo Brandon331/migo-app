@@ -2,18 +2,67 @@ import { useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db.js';
 import { computeStreaks } from '../streak.js';
+import { daysUntil } from '../dateHelpers.js';
 
 function dateKey(d) {
   return d.toISOString().slice(0, 10);
 }
 
-function daysUntil(dateStr) {
-  if (!dateStr) return null;
+function last14Days(completedSubsteps) {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const due = new Date(dateStr);
-  due.setHours(0, 0, 0, 0);
-  return Math.round((due - today) / (1000 * 60 * 60 * 24));
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = dateKey(d);
+    const count = completedSubsteps.filter((s) => dateKey(new Date(s.completedAt)) === key).length;
+    days.push({ key, count, isToday: i === 0 });
+  }
+  return days;
+}
+
+function GoalProgressCard({ goal, goalMilestones, goalSubsteps }) {
+  const total = goalMilestones.length;
+  const done = goalMilestones.filter((m) => m.status === 'completed').length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const daysLeft = daysUntil(goal.targetDate);
+
+  const completed = goalSubsteps.filter((s) => s.completed && s.completedAt);
+  const days = useMemo(() => last14Days(completed), [completed]);
+  const maxCount = Math.max(1, ...days.map((d) => d.count));
+
+  return (
+    <div className="goal-progress-row">
+      <div className="goal-progress-top">
+        <span className="goal-progress-title">{goal.title}</span>
+        <span className="goal-progress-pct">{pct}%</span>
+      </div>
+      <div className="progress-track">
+        <div className="progress-fill" style={{ width: `${pct}%` }} />
+      </div>
+
+      <div className="mini-bar-chart">
+        {days.map((d) => (
+          <div
+            key={d.key}
+            className={`mini-bar ${d.count > 0 ? 'has-activity' : ''} ${d.isToday ? 'is-today' : ''}`}
+            style={{ height: `${6 + (d.count / maxCount) * 26}px` }}
+            title={`${d.count} pasos`}
+          />
+        ))}
+      </div>
+
+      {daysLeft !== null && (
+        <span className={`goal-progress-days ${daysLeft < 0 ? 'is-overdue' : ''}`}>
+          {daysLeft < 0
+            ? `${Math.abs(daysLeft)} días tarde`
+            : daysLeft === 0
+            ? 'Meta hoy'
+            : `${daysLeft} días restantes`}
+        </span>
+      )}
+    </div>
+  );
 }
 
 export function ProgressPage() {
@@ -29,34 +78,10 @@ export function ProgressPage() {
     [completedSubsteps]
   );
 
-  const last14Days = useMemo(() => {
-    const today = new Date();
-    const days = [];
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const key = dateKey(d);
-      const count = completedSubsteps.filter((s) => dateKey(new Date(s.completedAt)) === key).length;
-      days.push({ key, count, isToday: i === 0 });
-    }
-    return days;
-  }, [completedSubsteps]);
-
-  const maxCount = Math.max(1, ...last14Days.map((d) => d.count));
-
   const activeGoals = useMemo(() => {
     if (loading) return [];
-    return goals
-      .filter((g) => g.status !== 'archived')
-      .map((g) => {
-        const goalMilestones = milestones.filter((m) => m.goalId === g.id);
-        const total = goalMilestones.length;
-        const done = goalMilestones.filter((m) => m.status === 'completed').length;
-        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-        const active = goalMilestones.find((m) => m.status === 'active');
-        return { ...g, pct, daysLeft: daysUntil(g.targetDate), activeDue: active?.dueDate };
-      });
-  }, [loading, goals, milestones]);
+    return goals.filter((g) => g.status !== 'archived');
+  }, [loading, goals]);
 
   if (loading) {
     return (
@@ -91,20 +116,7 @@ export function ProgressPage() {
         </div>
       </div>
 
-      <h2 className="section-heading">Últimos 14 días</h2>
-      <div className="bar-chart">
-        {last14Days.map((d) => (
-          <div className="bar-col" key={d.key}>
-            <div
-              className={`bar ${d.count > 0 ? 'has-activity' : ''} ${d.isToday ? 'is-today' : ''}`}
-              style={{ height: `${8 + (d.count / maxCount) * 48}px` }}
-              title={`${d.count} pasos`}
-            />
-          </div>
-        ))}
-      </div>
-
-      <h2 className="section-heading">Tus metas</h2>
+      <h2 className="section-heading">Progreso por meta</h2>
       {activeGoals.length === 0 && (
         <div className="empty-state">
           <span className="glyph">📈</span>
@@ -113,26 +125,14 @@ export function ProgressPage() {
       )}
       {activeGoals.length > 0 && (
         <div className="goal-progress-list">
-          {activeGoals.map((g) => (
-            <div className="goal-progress-row" key={g.id}>
-              <div className="goal-progress-top">
-                <span className="goal-progress-title">{g.title}</span>
-                <span className="goal-progress-pct">{g.pct}%</span>
-              </div>
-              <div className="progress-track">
-                <div className="progress-fill" style={{ width: `${g.pct}%` }} />
-              </div>
-              {g.daysLeft !== null && (
-                <span className={`goal-progress-days ${g.daysLeft < 0 ? 'is-overdue' : ''}`}>
-                  {g.daysLeft < 0
-                    ? `${Math.abs(g.daysLeft)} días tarde`
-                    : g.daysLeft === 0
-                    ? 'Meta hoy'
-                    : `${g.daysLeft} días restantes`}
-                </span>
-              )}
-            </div>
-          ))}
+          {activeGoals.map((g) => {
+            const goalMilestones = milestones.filter((m) => m.goalId === g.id);
+            const milestoneIds = new Set(goalMilestones.map((m) => m.id));
+            const goalSubsteps = substeps.filter((s) => milestoneIds.has(s.milestoneId));
+            return (
+              <GoalProgressCard key={g.id} goal={g} goalMilestones={goalMilestones} goalSubsteps={goalSubsteps} />
+            );
+          })}
         </div>
       )}
     </div>

@@ -6,11 +6,26 @@
 npm install
 cp .env.example .env
 # llena DATABASE_URL y OPENAI_API_KEY en .env
-npm run migrate   # corre 001 a 005 en orden
+npm run migrate   # corre 001 a 006 en orden
 npm run dev
 ```
 
-## Última versión: chat con Migo
+## Última versión: chat por meta
+
+- Migración `006_chat_goal_scope.sql` agrega `goal_id` (nullable) a `chat_messages`. Si es
+  `NULL`, es el chat general; si tiene valor, es el hilo de esa meta específica.
+- `GET /chat?goalId=<uuid>` — historial de ese hilo. Sin `goalId`, historial del chat
+  general.
+- `POST /chat` ahora recibe `{ message, goalId? }`. Si viene `goalId`, el contexto que se le
+  pasa a la IA es solo de esa meta (su camino completo, etapas, pasos de la etapa activa) en
+  vez del resumen de todas las metas — Migo responde enfocado en esa meta, no mezclando las
+  demás.
+- `GET /chat/threads` — lista las metas que ya tienen al menos un mensaje (con la fecha del
+  último), por si se quiere armar un índice de conversaciones en el frontend más adelante.
+  La versión actual del frontend arma ese índice directo de las metas activas, así que este
+  endpoint es opcional.
+
+## Versión anterior: chat con Migo
 
 - Nuevo: `POST /chat` y `GET /chat` (migración `005_chat.sql`, tabla `chat_messages`).
   Requieren `Authorization` como el resto.

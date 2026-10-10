@@ -3,13 +3,12 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db.js';
 import { OfflineBanner } from '../components/OfflineBanner.jsx';
 import { PathView } from '../components/PathView.jsx';
-import { Mascot } from '../components/Mascot.jsx';
-import { StreakStrip } from '../components/StreakStrip.jsx';
 import { GoalWizard } from '../components/GoalWizard.jsx';
+import { GoalPathScreen } from './GoalPathScreen.jsx';
 
-export function GoalsList({ isOnline, isSyncing }) {
+export function GoalsList({ isOnline, isSyncing, onChatAboutGoal }) {
   const [wizardOpen, setWizardOpen] = useState(false);
-  const [justCompletedId, setJustCompletedId] = useState(null);
+  const [openGoalId, setOpenGoalId] = useState(null);
 
   const goals = useLiveQuery(() => db.goals.orderBy('updatedAt').reverse().toArray(), []);
   const milestones = useLiveQuery(() => db.milestones.orderBy('orderIndex').toArray(), []);
@@ -26,13 +25,6 @@ export function GoalsList({ isOnline, isSyncing }) {
     }).length;
   }, [loading, visibleGoals, milestones]);
 
-  const mascotMessage = useMemo(() => {
-    if (loading) return null;
-    if (visibleGoals.length === 0) return 'Dime qué quieres lograr y te armo el camino. Nada de planes imposibles, lo prometo.';
-    if (activeCount === 0) return 'Te quedaste sin pendientes. Eso casi nunca pasa — aprovéchalo o métele una meta nueva.';
-    return 'Vas bien. Un paso chico a la vez, sin drama.';
-  }, [loading, visibleGoals, activeCount]);
-
   async function handleWizardComplete({ title, durationLabel, weeklyCommitment }) {
     if (!title) return;
     const tempId = `local-${crypto.randomUUID()}`;
@@ -46,6 +38,7 @@ export function GoalsList({ isOnline, isSyncing }) {
         durationLabel,
         weeklyCommitment,
         updatedAt: now,
+        createdAt: now,
       });
 
       await db.pendingChanges.add({
@@ -80,8 +73,6 @@ export function GoalsList({ isOnline, isSyncing }) {
         const allDone = siblings.every((s) => (s.id === step.id ? true : s.completed));
         if (allDone) {
           await db.milestones.update(step.milestoneId, { status: 'completed', updatedAt: now });
-          setJustCompletedId(step.milestoneId);
-          setTimeout(() => setJustCompletedId(null), 1200);
         }
       }
     });
@@ -112,6 +103,8 @@ export function GoalsList({ isOnline, isSyncing }) {
         });
       }
     });
+
+    if (openGoalId === goal.id) setOpenGoalId(null);
   }
 
   async function handleArchiveGoal(goal) {
@@ -130,13 +123,36 @@ export function GoalsList({ isOnline, isSyncing }) {
     });
   }
 
-  const completedSubsteps = loading ? [] : substeps.filter((s) => s.completed);
+  const openGoal = !loading ? visibleGoals.find((g) => g.id === openGoalId) : null;
+
+  if (openGoal) {
+    const goalMilestones = milestones
+      .filter((m) => m.goalId === openGoal.id)
+      .sort((a, b) => a.orderIndex - b.orderIndex);
+    const substepsByMilestone = {};
+    for (const m of goalMilestones) {
+      substepsByMilestone[m.id] = substeps
+        .filter((s) => s.milestoneId === m.id)
+        .sort((a, b) => a.orderIndex - b.orderIndex);
+    }
+
+    return (
+      <GoalPathScreen
+        goal={openGoal}
+        milestones={goalMilestones}
+        substepsByMilestone={substepsByMilestone}
+        onToggleSubstep={handleToggleSubstep}
+        onBack={() => setOpenGoalId(null)}
+        onChatAboutGoal={onChatAboutGoal}
+      />
+    );
+  }
 
   return (
     <div>
       <div className="top-bar">
         <div>
-          <h1>Migo</h1>
+          <h1>Metas</h1>
           {!loading && (
             <p className="counts">
               {activeCount === 0 ? 'Todo al día' : `${activeCount} meta${activeCount === 1 ? '' : 's'} en curso`}
@@ -150,10 +166,6 @@ export function GoalsList({ isOnline, isSyncing }) {
           </span>
         )}
       </div>
-
-      <Mascot message={mascotMessage} celebrating={!!justCompletedId} />
-
-      {!loading && <StreakStrip completedSubsteps={completedSubsteps} />}
 
       {!isOnline && <OfflineBanner />}
 
@@ -198,6 +210,8 @@ export function GoalsList({ isOnline, isSyncing }) {
                 onToggleSubstep={handleToggleSubstep}
                 onDeleteGoal={handleDeleteGoal}
                 onArchiveGoal={handleArchiveGoal}
+                onOpenPath={(g) => setOpenGoalId(g.id)}
+                onChatAboutGoal={onChatAboutGoal}
               />
             );
           })}

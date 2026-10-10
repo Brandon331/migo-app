@@ -48,9 +48,11 @@ export const api = {
 
   pullChanges: (since) => request(`/sync/pull?since=${encodeURIComponent(since || '1970-01-01')}`),
 
-  fetchChatHistory: () => request('/chat'),
+  fetchChatHistory: (goalId) =>
+    request(`/chat${goalId ? `?goalId=${encodeURIComponent(goalId)}` : ''}`),
 
-  sendChatMessage: (message) => request('/chat', { method: 'POST', body: { message } }),
+  sendChatMessage: (message, goalId) =>
+    request('/chat', { method: 'POST', body: { message, goalId: goalId || undefined } }),
 };
 
 export async function loginAndPersist(email, password) {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getSession, clearSession } from './db.js';
 import { Login } from './pages/Login.jsx';
+import { HomePage } from './pages/HomePage.jsx';
 import { GoalsList } from './pages/GoalsList.jsx';
 import { ProgressPage } from './pages/ProgressPage.jsx';
 import { ChatPage } from './pages/ChatPage.jsx';
@@ -10,7 +11,8 @@ import { useSync } from './hooks/useSync.js';
 
 export default function App() {
   const [session, setSession] = useState(undefined);
-  const [tab, setTab] = useState('goals');
+  const [tab, setTab] = useState('home');
+  const [chatGoalId, setChatGoalId] = useState(null);
   const { isOnline, isSyncing } = useSync();
 
   useEffect(() => {
@@ -28,15 +30,30 @@ export default function App() {
     setSession(null);
   }
 
+  function goToChatForGoal(goalId) {
+    setChatGoalId(goalId);
+    setTab('chat');
+  }
+
+  function handleTabChange(nextTab) {
+    if (nextTab === 'chat') setChatGoalId(null);
+    setTab(nextTab);
+  }
+
   return (
     <div className="app-shell">
       <div className="app-content">
-        {tab === 'goals' && <GoalsList isOnline={isOnline} isSyncing={isSyncing} />}
+        {tab === 'home' && <HomePage onGoToMetas={() => setTab('metas')} />}
+        {tab === 'metas' && (
+          <GoalsList isOnline={isOnline} isSyncing={isSyncing} onChatAboutGoal={goToChatForGoal} />
+        )}
         {tab === 'progress' && <ProgressPage />}
-        {tab === 'chat' && <ChatPage isOnline={isOnline} />}
+        {tab === 'chat' && (
+          <ChatPage isOnline={isOnline} goalId={chatGoalId} onSelectGoal={setChatGoalId} />
+        )}
         {tab === 'profile' && <ProfilePage session={session} onLogout={handleLogout} />}
       </div>
-      <BottomNav active={tab} onChange={setTab} />
+      <BottomNav active={tab} onChange={handleTabChange} />
     </div>
   );
 }
