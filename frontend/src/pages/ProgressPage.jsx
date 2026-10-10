@@ -70,7 +70,7 @@ export function ProgressPage() {
   return (
     <div>
       <h1>Progreso</h1>
-      <p className="counts" style={{ marginBottom: '1.5rem' }}>Tu actividad a través del tiempo</p>
+      <p className="counts" style={{ marginBottom: '1.5rem' }}>La prueba de que sí le has estado metiendo</p>
 
       <div className="stat-grid">
         <div className="stat-tile">
@@ -108,7 +108,7 @@ export function ProgressPage() {
       {activeGoals.length === 0 && (
         <div className="empty-state">
           <span className="glyph">📈</span>
-          <p>Todavía no hay nada que mostrar aquí. Agrega una meta para empezar.</p>
+          <p>Aquí no hay nada todavía porque no tienes metas activas. Empecemos por una.</p>
         </div>
       )}
       {activeGoals.length > 0 && (

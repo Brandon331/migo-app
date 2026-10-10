@@ -8,7 +8,26 @@ cp .env.example .env
 npm run dev
 ```
 
-## Última versión: asistente de preguntas, fechas y secciones
+## Última versión: chat con Migo, paleta nueva y personalidad
+
+- **Nueva pestaña "Migo" (chat):** `ChatPage.jsx` — habla con Migo sobre tus metas, pide
+  consejo, o pregúntale por qué algo no avanza. Usa el contexto real de tus metas (lo arma
+  el backend). Requiere conexión para responder — sin conexión ves tu historial pero no
+  puedes mandar mensajes nuevos (`chat-offline-note`). El historial se cachea en IndexedDB
+  (`db.chatMessages`) para que se vea de inmediato la próxima vez que abres la app.
+- **Paleta "AI Companion":** toda la app cambió del tono crema anterior a
+  `#625BFF` (violeta, color principal) / `#17172B` (oscuro, texto y modo oscuro) /
+  `#83F0C4` (menta, logros y progreso) / `#F7F7FC` (fondo claro). Incluye el ícono de la
+  PWA, el `theme-color`, y el degradado de `Mascot.jsx`.
+- **Personalidad de Migo:** todos los textos de la app (login, mensajes de la mascota,
+  banners, el asistente de preguntas, estados vacíos) se reescribieron con la voz de
+  Migo — directo, cómplice, con humor, nunca corporativo ni infantil. La misma
+  personalidad vive en el backend para el chat (`MIGO_SYSTEM_PROMPT`).
+- **Fix:** al completar todos los pasos de una etapa activa, antes desaparecían — ya no.
+  `PathView.jsx` sigue mostrando los pasos de una etapa completada (ahora deshabilitados,
+  para que se vea lo que ya lograste).
+
+## Versión anterior: asistente de preguntas, fechas y secciones
 
 - **Nueva meta = asistente animado** (`GoalWizard.jsx`): meta → duración (opción múltiple) →
   tiempo disponible por semana (opción múltiple) → círculo de carga. Una pregunta a la vez,

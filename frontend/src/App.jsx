@@ -3,6 +3,7 @@ import { getSession, clearSession } from './db.js';
 import { Login } from './pages/Login.jsx';
 import { GoalsList } from './pages/GoalsList.jsx';
 import { ProgressPage } from './pages/ProgressPage.jsx';
+import { ChatPage } from './pages/ChatPage.jsx';
 import { ProfilePage } from './pages/ProfilePage.jsx';
 import { BottomNav } from './components/BottomNav.jsx';
 import { useSync } from './hooks/useSync.js';
@@ -32,6 +33,7 @@ export default function App() {
       <div className="app-content">
         {tab === 'goals' && <GoalsList isOnline={isOnline} isSyncing={isSyncing} />}
         {tab === 'progress' && <ProgressPage />}
+        {tab === 'chat' && <ChatPage isOnline={isOnline} />}
         {tab === 'profile' && <ProfilePage session={session} onLogout={handleLogout} />}
       </div>
       <BottomNav active={tab} onChange={setTab} />

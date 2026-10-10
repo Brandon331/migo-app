@@ -48,7 +48,7 @@ export function GoalWizard({ onComplete, onCancel }) {
         {step === STEP_TITLE && (
           <div className="wizard-step" key="step-title">
             <span className="wizard-eyebrow">Paso 1 de 3</span>
-            <h2 className="wizard-question">¿Cuál es tu meta?</h2>
+            <h2 className="wizard-question">Ok, ¿qué quieres lograr?</h2>
             <form className="wizard-form" onSubmit={handleTitleSubmit}>
               <input
                 type="text"
@@ -58,7 +58,7 @@ export function GoalWizard({ onComplete, onCancel }) {
                 onChange={(e) => setTitle(e.target.value)}
               />
               <button type="submit" disabled={!title.trim()}>
-                Siguiente
+                Sigamos
               </button>
             </form>
           </div>
@@ -67,7 +67,7 @@ export function GoalWizard({ onComplete, onCancel }) {
         {step === STEP_DURATION && (
           <div className="wizard-step" key="step-duration">
             <span className="wizard-eyebrow">Paso 2 de 3</span>
-            <h2 className="wizard-question">¿En cuánto tiempo la quieres lograr?</h2>
+            <h2 className="wizard-question">¿Para cuándo la quieres lista?</h2>
             <div className="wizard-options">
               {DURATION_OPTIONS.map((opt) => (
                 <button
@@ -87,8 +87,8 @@ export function GoalWizard({ onComplete, onCancel }) {
         {step === STEP_COMMITMENT && (
           <div className="wizard-step" key="step-commitment">
             <span className="wizard-eyebrow">Paso 3 de 3</span>
-            <h2 className="wizard-question">¿Cuánto tiempo puedes dedicarle por semana?</h2>
-            <p className="wizard-subtext">Con esto Migo ajusta qué tan grandes son tus pasos.</p>
+            <h2 className="wizard-question">¿Cuánto tiempo real le vas a meter cada semana?</h2>
+            <p className="wizard-subtext">Sé honesto — con esto calibro qué tan grandes son tus pasos.</p>
             <div className="wizard-options">
               {COMMITMENT_OPTIONS.map((opt) => (
                 <button
@@ -108,7 +108,7 @@ export function GoalWizard({ onComplete, onCancel }) {
         {step === STEP_LOADING && (
           <div className="wizard-step wizard-loading" key="step-loading">
             <div className="wizard-circle" aria-hidden="true" />
-            <p className="wizard-loading-text">Migo está trazando tu camino…</p>
+            <p className="wizard-loading-text">Dame un segundo, le estoy buscando la vuelta…</p>
           </div>
         )}
       </div>

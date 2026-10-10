@@ -1,6 +1,7 @@
 const TABS = [
   { id: 'goals', label: 'Camino', icon: '🧭' },
   { id: 'progress', label: 'Progreso', icon: '🔥' },
+  { id: 'chat', label: 'Migo', icon: '💬' },
   { id: 'profile', label: 'Perfil', icon: '🙂' },
 ];
 

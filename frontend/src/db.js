@@ -10,6 +10,15 @@ db.version(1).stores({
   session: 'key',
 });
 
+db.version(2).stores({
+  goals: 'id, status, updatedAt',
+  milestones: 'id, goalId, status, orderIndex, updatedAt',
+  substeps: 'id, milestoneId, completed, completedAt, updatedAt',
+  pendingChanges: '++localId, entityType, entityId, action, createdAt',
+  session: 'key',
+  chatMessages: 'id, createdAt',
+});
+
 export async function getSession() {
   const rows = await db.session.toArray();
   return rows[0] || null;

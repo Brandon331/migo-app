@@ -1,26 +1,28 @@
-/* Migo — identidad: un camino de etapas que vas desbloqueando, con un
-   compañero (mascota) que celebra cada paso. Juguetón, no corporativo.
+/* Migo — compañero de IA, no mascota de juguete: ingenioso, cómplice, directo.
+   Paleta "AI Companion": violeta #625BFF como acento principal, #17172B como
+   tinta/oscuro, menta #83F0C4 para logros y progreso, #F7F7FC como lienzo claro.
    Tipografía: Baloo 2 (display, redondeada, con peso) + Inter (cuerpo/UI). */
 :root {
-  --bg: #fff8f0;
+  --bg: #f7f7fc;
   --surface: #ffffff;
-  --surface-sunken: #f4ecff;
-  --fg: #231542;
-  --fg-soft: #6f6490;
-  --fg-faint: #b3a9cf;
+  --surface-sunken: #ecebfa;
+  --fg: #17172b;
+  --fg-soft: #5b5b72;
+  --fg-faint: #9a9ab3;
 
-  --violet: #7c3aed;
-  --violet-deep: #5b21b6;
-  --coral: #ff5d73;
-  --yellow: #ffc93c;
-  --green: #22c55e;
+  --violet: #625bff;
+  --violet-deep: #4a43d1;
+  --coral: #ff6b81;
+  --yellow: #f5a623;
+  --mint: #2fbf87;
+  --mint-bright: #83f0c4;
 
-  --locked: #e3dcf5;
-  --locked-fg: #a99fc4;
-  --hairline: #ece2ff;
+  --locked: #e4e3f5;
+  --locked-fg: #a6a5c4;
+  --hairline: #e6e5f5;
 
-  --shadow: 0 2px 0 rgba(35, 21, 66, 0.08), 0 10px 24px -14px rgba(124, 58, 237, 0.35);
-  --shadow-pop: 0 4px 0 rgba(35, 21, 66, 0.12), 0 16px 32px -14px rgba(124, 58, 237, 0.45);
+  --shadow: 0 2px 0 rgba(23, 23, 43, 0.08), 0 10px 24px -14px rgba(98, 91, 255, 0.35);
+  --shadow-pop: 0 4px 0 rgba(23, 23, 43, 0.12), 0 16px 32px -14px rgba(98, 91, 255, 0.45);
 
   --font-display: 'Baloo 2', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
@@ -30,22 +32,23 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1c1333;
-    --surface: #271a47;
-    --surface-sunken: #221640;
-    --fg: #f3eeff;
-    --fg-soft: #b6a9da;
-    --fg-faint: #786a9e;
+    --bg: #17172b;
+    --surface: #1f1f38;
+    --surface-sunken: #23233f;
+    --fg: #f7f7fc;
+    --fg-soft: #b3b3cc;
+    --fg-faint: #6e6e8f;
 
-    --violet: #a78bfa;
-    --violet-deep: #8b5cf6;
+    --violet: #857fff;
+    --violet-deep: #625bff;
     --coral: #ff8095;
     --yellow: #ffd766;
-    --green: #4ade80;
+    --mint: #83f0c4;
+    --mint-bright: #a6f6d8;
 
-    --locked: #352a57;
-    --locked-fg: #6f628f;
-    --hairline: #382a5c;
+    --locked: #2e2e4d;
+    --locked-fg: #6e6e8f;
+    --hairline: #303052;
 
     --shadow: 0 2px 0 rgba(0, 0, 0, 0.25), 0 10px 24px -14px rgba(0, 0, 0, 0.5);
     --shadow-pop: 0 4px 0 rgba(0, 0, 0, 0.3), 0 16px 32px -14px rgba(0, 0, 0, 0.6);
@@ -54,20 +57,21 @@
 }
 
 :root[data-theme="dark"] {
-  --bg: #1c1333;
-  --surface: #271a47;
-  --surface-sunken: #221640;
-  --fg: #f3eeff;
-  --fg-soft: #b6a9da;
-  --fg-faint: #786a9e;
-  --violet: #a78bfa;
-  --violet-deep: #8b5cf6;
+  --bg: #17172b;
+  --surface: #1f1f38;
+  --surface-sunken: #23233f;
+  --fg: #f7f7fc;
+  --fg-soft: #b3b3cc;
+  --fg-faint: #6e6e8f;
+  --violet: #857fff;
+  --violet-deep: #625bff;
   --coral: #ff8095;
   --yellow: #ffd766;
-  --green: #4ade80;
-  --locked: #352a57;
-  --locked-fg: #6f628f;
-  --hairline: #382a5c;
+  --mint: #83f0c4;
+  --mint-bright: #a6f6d8;
+  --locked: #2e2e4d;
+  --locked-fg: #6e6e8f;
+  --hairline: #303052;
   --shadow: 0 2px 0 rgba(0, 0, 0, 0.25), 0 10px 24px -14px rgba(0, 0, 0, 0.5);
   --shadow-pop: 0 4px 0 rgba(0, 0, 0, 0.3), 0 16px 32px -14px rgba(0, 0, 0, 0.6);
   color-scheme: dark;
@@ -423,8 +427,8 @@ button:disabled {
 }
 
 .streak-dot.is-active {
-  background: var(--green);
-  border-color: var(--green);
+  background: var(--mint);
+  border-color: var(--mint);
 }
 
 .streak-dot.is-today {
@@ -474,7 +478,7 @@ button:disabled {
 }
 
 .goal.is-complete {
-  border-color: var(--green);
+  border-color: var(--mint);
 }
 
 .goal-top {
@@ -499,7 +503,7 @@ button:disabled {
 }
 
 .goal-title .strike {
-  text-decoration-color: var(--green);
+  text-decoration-color: var(--mint);
 }
 .goal-title.is-complete .strike {
   text-decoration: line-through;
@@ -583,7 +587,7 @@ button:disabled {
 }
 
 .trail-node.is-completed {
-  background: var(--green);
+  background: var(--mint);
   color: white;
 }
 
@@ -596,7 +600,7 @@ button:disabled {
 }
 
 .trail-line.is-done {
-  background: var(--green);
+  background: var(--mint);
 }
 
 .trail-content {
@@ -620,7 +624,7 @@ button:disabled {
 .trail-title.is-completed {
   color: var(--fg-soft);
   text-decoration: line-through;
-  text-decoration-color: var(--green);
+  text-decoration-color: var(--mint);
   text-decoration-thickness: 2px;
 }
 
@@ -688,13 +692,28 @@ button:disabled {
 }
 
 .substep-checkbox:checked {
-  background: var(--green);
-  border-color: var(--green);
+  background: var(--mint);
+  border-color: var(--mint);
   transform: scale(1.05);
 }
 
 .substep-checkbox:checked::before {
   transform: scale(1);
+}
+
+.substep-checkbox:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.substep-checkbox:disabled:checked {
+  background: var(--mint);
+  border-color: var(--mint);
+  transform: scale(1);
+}
+
+.substep:has(.substep-checkbox:disabled) label {
+  cursor: default;
 }
 
 .substep label {
@@ -751,7 +770,7 @@ button:disabled {
   gap: 0.5rem;
   font-family: var(--font-display);
   font-size: 0.95rem;
-  color: var(--green);
+  color: var(--mint);
   font-weight: 700;
   margin-top: 0.6rem;
   padding-top: 0.7rem;
@@ -1145,6 +1164,21 @@ button.ghost.is-confirming {
   font-variant-numeric: tabular-nums;
 }
 
+.progress-track {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--mint-bright);
+  transition: width 0.4s ease;
+}
+
 .goal-progress-days {
   display: inline-block;
   margin-top: 0.4rem;
@@ -1188,4 +1222,99 @@ button.ghost.is-confirming {
   font-size: 0.82rem;
   margin-top: 1.5rem;
   line-height: 1.5;
+}
+
+/* ---------- Chat ---------- */
+
+.chat-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: calc(100vh - 2.75rem);
+}
+
+.chat-header {
+  margin-bottom: 1rem;
+}
+
+.chat-thread {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  overflow-y: auto;
+  padding-bottom: 0.5rem;
+}
+
+.chat-empty {
+  padding-top: 0.5rem;
+}
+
+.chat-bubble-row {
+  display: flex;
+}
+
+.chat-bubble-row.is-user {
+  justify-content: flex-end;
+}
+
+.chat-bubble-row.is-assistant {
+  justify-content: flex-start;
+}
+
+.chat-bubble {
+  max-width: 78%;
+  padding: 0.7rem 0.95rem;
+  border-radius: 16px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-bubble-row.is-user .chat-bubble {
+  background: var(--violet);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble-row.is-assistant .chat-bubble {
+  background: var(--surface);
+  border: 2px solid var(--hairline);
+  color: var(--fg);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-bubble-typing {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--fg-soft);
+  font-weight: 600;
+}
+
+.chat-offline-note {
+  font-size: 0.8rem;
+  color: var(--fg-soft);
+  text-align: center;
+  margin: 0.4rem 0;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.6rem;
+  position: sticky;
+  bottom: 0;
+  background: var(--bg);
+}
+
+.chat-input-row input {
+  flex: 1 1 auto;
+}
+
+.chat-input-row button {
+  flex: 0 0 auto;
+  padding-left: 1.1rem;
+  padding-right: 1.1rem;
 }

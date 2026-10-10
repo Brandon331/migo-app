@@ -13,7 +13,7 @@ export function Login({ onAuthenticated }) {
     setError(null);
 
     if (!navigator.onLine) {
-      setError('Necesitas conexión a internet para iniciar sesión la primera vez.');
+      setError('Para la primera entrada necesito internet — ya después sí podemos trabajar sin conexión.');
       return;
     }
 
@@ -35,9 +35,9 @@ export function Login({ onAuthenticated }) {
   return (
     <div className="auth-shell">
       <div>
-        <span className="eyebrow">Tu compañero de metas</span>
+        <span className="eyebrow">El compañero que sí te sigue el paso</span>
         <h1>Migo</h1>
-        <p className="lede">Escribe una meta. Migo te traza el camino y te desglosa cada etapa en pasos chicos, una a la vez.</p>
+        <p className="lede">Dime qué quieres lograr. Yo le busco la vuelta, lo parto en pasos chicos y te voy picando hasta que lo hagas.</p>
       </div>
 
       <form className="auth-form" onSubmit={handleSubmit}>
@@ -58,7 +58,7 @@ export function Login({ onAuthenticated }) {
         />
         {error && <p className="error-text">{error}</p>}
         <button type="submit" disabled={loading}>
-          {loading ? 'Un momento...' : mode === 'login' ? 'Entrar' : 'Crear cuenta'}
+          {loading ? 'Dame un segundo...' : mode === 'login' ? 'Entrar' : 'Vamos a esto'}
         </button>
       </form>
 
@@ -66,7 +66,7 @@ export function Login({ onAuthenticated }) {
         className="secondary"
         onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
       >
-        {mode === 'login' ? 'No tengo cuenta todavía' : 'Ya tengo cuenta'}
+        {mode === 'login' ? 'Todavía no tengo cuenta' : 'Ya nos conocemos'}
       </button>
     </div>
   );

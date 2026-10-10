@@ -4,7 +4,7 @@ export function ProfilePage({ session, onLogout }) {
   return (
     <div>
       <h1>Perfil</h1>
-      <Mascot message="Aquí puedes ver tu cuenta y cerrar sesión." />
+      <Mascot message="Aquí está lo tuyo. Sin sorpresas." />
 
       <div className="profile-card">
         <span className="profile-label">Cuenta</span>
@@ -16,8 +16,8 @@ export function ProfilePage({ session, onLogout }) {
       </button>
 
       <p className="profile-footnote">
-        Migo sigue el tema claro u oscuro de tu dispositivo. Tus metas se guardan en este
-        dispositivo y se sincronizan solas cuando hay conexión.
+        Uso el tema claro u oscuro de tu dispositivo, sin preguntarte. Tus metas viven aquí
+        primero y se sincronizan solas en cuanto hay señal.
       </p>
     </div>
   );

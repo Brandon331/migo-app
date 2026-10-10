@@ -47,6 +47,10 @@ export const api = {
   pushChanges: (changes) => request('/sync/push', { method: 'POST', body: { changes } }),
 
   pullChanges: (since) => request(`/sync/pull?since=${encodeURIComponent(since || '1970-01-01')}`),
+
+  fetchChatHistory: () => request('/chat'),
+
+  sendChatMessage: (message) => request('/chat', { method: 'POST', body: { message } }),
 };
 
 export async function loginAndPersist(email, password) {

@@ -6,11 +6,26 @@
 npm install
 cp .env.example .env
 # llena DATABASE_URL y OPENAI_API_KEY en .env
-npm run migrate   # corre 001, 002, 003 y 004 en orden
+npm run migrate   # corre 001 a 005 en orden
 npm run dev
 ```
 
-## Última versión: duración, fechas y pacing
+## Última versión: chat con Migo
+
+- Nuevo: `POST /chat` y `GET /chat` (migración `005_chat.sql`, tabla `chat_messages`).
+  Requieren `Authorization` como el resto.
+- `GET /chat` regresa el historial del usuario (hasta 200 mensajes, orden cronológico).
+- `POST /chat` recibe `{ message }`, guarda el mensaje del usuario, arma el contexto de sus
+  metas actuales (título, status, etapa activa, fecha objetivo) y le pide a la IA una
+  respuesta con la personalidad de Migo (`chatWithMigo` en `src/services/ai.service.js`,
+  que usa `MIGO_SYSTEM_PROMPT`: amigable, ingenioso, cómplice, directo, con humor
+  contextual — nunca corporativo ni infantil, nunca culpa ni sermonea). Guarda y regresa
+  tanto el mensaje del usuario como la respuesta.
+- El chat no es offline-first como el resto de la app: necesita conexión porque cada
+  respuesta pasa por el modelo. El frontend solo cachea el historial para verlo sin
+  conexión.
+
+## Versión anterior: duración, fechas y pacing
 
 - `POST /goals` ahora recibe también `durationLabel` (`1_week` | `1_month` | `3_months` |
   `6_months_plus`) y `weeklyCommitment` (`low` | `medium` | `high`) — las respuestas del
@@ -64,3 +79,7 @@ confirmes que ya no la necesitas.
 ### Sincronización
 - `POST /sync/push` — `entity_type`: `"substep"` o `"goal"`
 - `GET /sync/pull?since=<ISO date>`
+
+### Chat
+- `GET /chat` — historial de mensajes con Migo
+- `POST /chat` — `{ message }`, regresa `{ userMessage, reply }`

@@ -28,9 +28,9 @@ export function GoalsList({ isOnline, isSyncing }) {
 
   const mascotMessage = useMemo(() => {
     if (loading) return null;
-    if (visibleGoals.length === 0) return '¡Hola! Toca "+ Nueva meta" y te armo el camino.';
-    if (activeCount === 0) return '¡Wow, todo completado! Hora de una meta nueva 🎉';
-    return 'Vas bien. Un paso chico a la vez.';
+    if (visibleGoals.length === 0) return 'Dime qué quieres lograr y te armo el camino. Nada de planes imposibles, lo prometo.';
+    if (activeCount === 0) return 'Te quedaste sin pendientes. Eso casi nunca pasa — aprovéchalo o métele una meta nueva.';
+    return 'Vas bien. Un paso chico a la vez, sin drama.';
   }, [loading, visibleGoals, activeCount]);
 
   async function handleWizardComplete({ title, durationLabel, weeklyCommitment }) {
@@ -171,7 +171,7 @@ export function GoalsList({ isOnline, isSyncing }) {
       {!loading && visibleGoals.length === 0 && (
         <div className="empty-state">
           <span className="glyph">🧭</span>
-          <p>Todavía no tienes metas. Toca "+ Nueva meta" y Migo te traza el camino.</p>
+          <p>Esto está vacío. Toca "+ Nueva meta", cuéntame qué quieres lograr y yo pongo el mapa.</p>
         </div>
       )}
 

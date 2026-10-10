@@ -65,8 +65,8 @@ export function PathView({ goal, milestones, substepsByMilestone, onToggleSubste
         <p className="goal-pending">
           <span className="spinner" aria-hidden="true" />
           {navigator.onLine
-            ? 'Trazando tu camino…'
-            : 'Se trazará tu camino en cuanto tengas conexión.'}
+            ? 'Pensando el mejor camino…'
+            : 'Lo trazo en cuanto tengas conexión. No se me olvida.'}
         </p>
       )}
 
@@ -99,31 +99,33 @@ export function PathView({ goal, milestones, substepsByMilestone, onToggleSubste
                   {milestone.status === 'active' && milestone.pending_ai_breakdown && substeps.length === 0 && (
                     <p className="milestone-pending">
                       <span className="spinner" aria-hidden="true" />
-                      {navigator.onLine ? 'Preparando tus pasos…' : 'Se prepararán en cuanto tengas conexión.'}
+                      {navigator.onLine ? 'Armando tus pasos…' : 'Los armo apenas vuelva la conexión.'}
                     </p>
                   )}
 
-                  {milestone.status === 'active' && substeps.length > 0 && (
-                    <ul className="substep-list">
-                      {substeps.map((step) => (
-                        <li key={step.id} className={`substep ${step.completed ? 'completed' : ''}`}>
-                          <input
-                            className="substep-checkbox"
-                            type="checkbox"
-                            checked={step.completed}
-                            onChange={() => onToggleSubstep(step)}
-                            id={`substep-${step.id}`}
-                          />
-                          <label htmlFor={`substep-${step.id}`}>
-                            <span className="substep-title">{step.title}</span>
-                            {step.description && (
-                              <span className="substep-description">{step.description}</span>
-                            )}
-                          </label>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  {(milestone.status === 'active' || milestone.status === 'completed') &&
+                    substeps.length > 0 && (
+                      <ul className="substep-list">
+                        {substeps.map((step) => (
+                          <li key={step.id} className={`substep ${step.completed ? 'completed' : ''}`}>
+                            <input
+                              className="substep-checkbox"
+                              type="checkbox"
+                              checked={step.completed}
+                              disabled={milestone.status === 'completed'}
+                              onChange={() => onToggleSubstep(step)}
+                              id={`substep-${step.id}`}
+                            />
+                            <label htmlFor={`substep-${step.id}`}>
+                              <span className="substep-title">{step.title}</span>
+                              {step.description && (
+                                <span className="substep-description">{step.description}</span>
+                              )}
+                            </label>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                 </div>
               </div>
             );
@@ -131,7 +133,7 @@ export function PathView({ goal, milestones, substepsByMilestone, onToggleSubste
         </div>
       )}
 
-      {isGoalComplete && <p className="complete-banner">🎉 ¡Meta completada!</p>}
+      {isGoalComplete && <p className="complete-banner">🎉 La cerraste. Esa es tuya.</p>}
 
       {!isArchived && (
         <div className="goal-actions">
@@ -141,7 +143,7 @@ export function PathView({ goal, milestones, substepsByMilestone, onToggleSubste
             </button>
           )}
           <button className={`ghost ${confirmingDelete ? 'is-confirming' : ''}`} onClick={handleDeleteClick}>
-            {confirmingDelete ? '¿Seguro? Toca de nuevo' : 'Eliminar'}
+            {confirmingDelete ? '¿Seguro? Toca otra vez y la borro' : 'Eliminar'}
           </button>
         </div>
       )}

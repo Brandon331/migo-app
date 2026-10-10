@@ -15,8 +15,8 @@ export default defineConfig({
         name: 'Migo',
         short_name: 'Migo',
         description: 'Tu compañero para convertir metas en un camino, con o sin conexión',
-        theme_color: '#2b1065',
-        background_color: '#fff8f0',
+        theme_color: '#625bff',
+        background_color: '#f7f7fc',
         display: 'standalone',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
