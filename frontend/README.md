@@ -8,7 +8,24 @@ cp .env.example .env
 npm run dev
 ```
 
-## Última versión: inicio con Migo, camino por semanas/meses, progreso por meta
+## Última versión: diseño y UX — sidebar de chat, wizard a pantalla completa, historia de Migo
+
+- **Barra lateral en el chat (`ChatPage.jsx`):** el ícono ☰ abre un panel deslizante con
+  "Migo" (chat general) y un hilo por cada meta activa, cada uno con una vista previa de su
+  último mensaje. Se acabaron los chips horizontales que se veían apretados.
+- **El asistente de nueva meta ahora es pantalla completa (`GoalWizard.jsx` +
+  `.wizard-overlay`):** ya no se ve como un modal flotando encima de "Metas" — ocupa toda la
+  pantalla, se siente como su propio paso.
+- **Las metas empiezan achicadas:** cada tarjeta en "Metas" arranca colapsada (solo título +
+  % de avance); tocas el encabezado para expandirla. Antes arrancaban abiertas y la lista se
+  sentía larga desde el primer vistazo.
+- **La historia de Migo (`MigoStoryScreen.jsx` + `migoStory.js`), nueva en Perfil:** "📖 Ver
+  la historia de Migo" abre un libro a pantalla completa — cielo estrellado animado, una
+  página a la vez con transición, puntos de progreso. La primera vez pregunta tu nombre (se
+  guarda local, `db.getCompanionName`/`setCompanionName`, sin mandarlo al servidor) y lo teje
+  en la historia; si prefieres no dar tu nombre, puedes dejarlo "solo Migo".
+
+## Versión anterior: inicio con Migo, camino por semanas/meses, progreso por meta
 
 - **Nueva pantalla de inicio (`HomePage.jsx`), pestaña "Migo":** el personaje, su nombre, una
   frase suya que menciona tus metas reales (`migoPhrases.js`, por ejemplo "¿Cómo vas con

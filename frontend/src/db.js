@@ -53,3 +53,17 @@ export async function setLastSyncedAt(isoDate) {
     await db.session.put({ ...session, lastSyncedAt: isoDate });
   }
 }
+
+// Nombre que la persona elige para personalizar "la historia de Migo" — solo
+// vive local, no hace falta mandarlo al servidor.
+export async function getCompanionName() {
+  const session = await getSession();
+  return session?.companionName || null;
+}
+
+export async function setCompanionName(name) {
+  const session = await getSession();
+  if (session) {
+    await db.session.put({ ...session, companionName: name });
+  }
+}

@@ -28,7 +28,9 @@ export function PathView({
   onChatAboutGoal,
 }) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
-  const [expanded, setExpanded] = useState(true);
+  // Achicado por default: la lista de metas se ve mejor como resumen, y cada
+  // quien expande la que le interesa en ese momento.
+  const [expanded, setExpanded] = useState(false);
 
   const totalMilestones = milestones.length;
   const completedMilestones = milestones.filter((m) => m.status === 'completed').length;
