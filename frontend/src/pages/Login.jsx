@@ -35,6 +35,7 @@ export function Login({ onAuthenticated }) {
   return (
     <div className="auth-shell">
       <div>
+        <div className="auth-glyph" aria-hidden="true">✦</div>
         <span className="eyebrow">El compañero que sí te sigue el paso</span>
         <h1>Migo</h1>
         <p className="lede">Dime qué quieres lograr. Yo le busco la vuelta, lo parto en pasos chicos y te voy picando hasta que lo hagas.</p>
