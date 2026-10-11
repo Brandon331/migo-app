@@ -7,6 +7,7 @@ import { goalsRouter } from './routes/goals.routes.js';
 import { milestonesRouter } from './routes/milestones.routes.js';
 import { syncRouter } from './routes/sync.routes.js';
 import { chatRouter } from './routes/chat.routes.js';
+import { friendsRouter } from './routes/friends.routes.js';
 import { requireAuth } from './middleware/auth.middleware.js';
 
 const app = express();
@@ -22,6 +23,7 @@ app.use('/goals', requireAuth, goalsRouter);
 app.use('/milestones', requireAuth, milestonesRouter);
 app.use('/sync', requireAuth, syncRouter);
 app.use('/chat', requireAuth, chatRouter);
+app.use('/friends', requireAuth, friendsRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

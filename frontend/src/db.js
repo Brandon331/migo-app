@@ -42,6 +42,28 @@ export async function clearSession() {
   await db.session.clear();
 }
 
+// Todo lo que vive en IndexedDB es de una sola cuenta a la vez — si no se
+// limpia al salir, la siguiente cuenta que entre en este mismo dispositivo
+// ve metas, progreso y chats de la cuenta anterior. Se llama al cerrar
+// sesión y, por si acaso, también justo antes de guardar una sesión nueva.
+export async function clearLocalData() {
+  await db.transaction(
+    'rw',
+    db.goals,
+    db.milestones,
+    db.substeps,
+    db.pendingChanges,
+    db.chatMessages,
+    async () => {
+      await db.goals.clear();
+      await db.milestones.clear();
+      await db.substeps.clear();
+      await db.pendingChanges.clear();
+      await db.chatMessages.clear();
+    }
+  );
+}
+
 export async function getLastSyncedAt() {
   const session = await getSession();
   return session?.lastSyncedAt || null;

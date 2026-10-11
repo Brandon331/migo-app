@@ -1,4 +1,4 @@
-import { getSession, setSession } from './db.js';
+import { getSession, setSession, clearLocalData } from './db.js';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -53,10 +53,33 @@ export const api = {
 
   sendChatMessage: (message, goalId) =>
     request('/chat', { method: 'POST', body: { message, goalId: goalId || undefined } }),
+
+  fetchMe: () => request('/auth/me'),
+
+  updateCharacter: (character) => request('/auth/me', { method: 'PATCH', body: { character } }),
+
+  createFriendInvite: () => request('/friends/invite', { method: 'POST' }),
+
+  acceptFriendInvite: (code) => request('/friends/accept', { method: 'POST', body: { code } }),
+
+  fetchFriends: () => request('/friends'),
+
+  fetchFriendGoals: (friendId) => request(`/friends/${friendId}/goals`),
 };
+
+// Por si el cierre de sesión anterior no se completó limpio (un refresh a
+// medias, un crash), nos aseguramos de nunca arrancar una cuenta nueva con
+// datos de otra cuenta todavía en IndexedDB.
+async function startFreshSessionFor(userId) {
+  const previous = await getSession();
+  if (previous && previous.userId && previous.userId !== userId) {
+    await clearLocalData();
+  }
+}
 
 export async function loginAndPersist(email, password) {
   const data = await api.login(email, password);
+  await startFreshSessionFor(data.user.id);
   await setSession({
     userId: data.user.id,
     email: data.user.email,
@@ -69,6 +92,7 @@ export async function loginAndPersist(email, password) {
 
 export async function registerAndPersist(email, password) {
   const data = await api.register(email, password);
+  await startFreshSessionFor(data.user.id);
   await setSession({
     userId: data.user.id,
     email: data.user.email,

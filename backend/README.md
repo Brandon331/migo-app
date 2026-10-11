@@ -6,11 +6,27 @@
 npm install
 cp .env.example .env
 # llena DATABASE_URL y OPENAI_API_KEY en .env
-npm run migrate   # corre 001 a 006 en orden
+npm run migrate   # corre 001 a 007 en orden
 npm run dev
 ```
 
-## Última versión: chat por meta
+## Última versión: amigos y personajes
+
+- Migración `007_friends.sql`: agrega `character` (texto: `rat`|`cat`|`dog`|`fox`|`panda`|`owl`)
+  a `users`, y dos tablas nuevas — `friend_invites` (códigos de invitación de un solo uso) y
+  `friendships` (una fila por dirección, así que si A y B son amigos hay (A,B) y (B,A)).
+- `GET /auth/me` / `PATCH /auth/me` — ver y cambiar tu propio personaje.
+- `POST /friends/invite` — genera un código de 6 caracteres para compartir.
+- `POST /friends/accept` — `{ code }`, conecta con quien generó ese código (ambas direcciones
+  de una vez).
+- `GET /friends` — tus amigos con su personaje y un resumen de sus metas activas (título, %,
+  y si completaron algo hoy). Esto corre una consulta por amigo — bien para la escala de un
+  círculo de amigos, no pensado para cientos.
+- `GET /friends/:friendId/goals` — el camino completo de un amigo (metas, etapas, pasos),
+  de solo lectura. Verifica que de verdad sean amigos antes de regresar nada — si no, 403.
+- Nada de esto es offline-first (como el chat): necesita conexión porque vive en el servidor.
+
+## Versión anterior: chat por meta
 
 - Migración `006_chat_goal_scope.sql` agrega `goal_id` (nullable) a `chat_messages`. Si es
   `NULL`, es el chat general; si tiene valor, es el hilo de esa meta específica.
@@ -80,6 +96,7 @@ confirmes que ya no la necesitas.
 
 ### Auth
 - `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`
+- `GET /auth/me`, `PATCH /auth/me` — `{ character }`
 
 ### Metas (requieren `Authorization: Bearer <accessToken>`)
 - `GET /goals` — con `milestones` anidados, y dentro `substeps`
@@ -96,5 +113,11 @@ confirmes que ya no la necesitas.
 - `GET /sync/pull?since=<ISO date>`
 
 ### Chat
-- `GET /chat` — historial de mensajes con Migo
-- `POST /chat` — `{ message }`, regresa `{ userMessage, reply }`
+- `GET /chat?goalId=<uuid opcional>` — historial (general o de una meta)
+- `POST /chat` — `{ message, goalId? }`, regresa `{ userMessage, reply }`
+
+### Amigos
+- `POST /friends/invite` — regresa `{ code }`
+- `POST /friends/accept` — `{ code }`, regresa `{ friend }`
+- `GET /friends` — lista de amigos con personaje y resumen de progreso
+- `GET /friends/:friendId/goals` — camino de un amigo, solo lectura

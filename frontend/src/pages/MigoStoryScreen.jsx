@@ -2,6 +2,42 @@ import { useEffect, useState } from 'react';
 import { getCompanionName, setCompanionName } from '../db.js';
 import { buildMigoStory } from '../migoStory.js';
 
+// Partículas de fondo, generadas una sola vez (a nivel de módulo) para que no
+// salten de posición en cada render — solo titilan y flotan en su lugar.
+const SPARKLES = Array.from({ length: 22 }, (_, i) => ({
+  id: i,
+  left: Math.round(Math.random() * 100),
+  top: Math.round(Math.random() * 100),
+  size: (4 + Math.random() * 9).toFixed(1),
+  delay: (Math.random() * 6).toFixed(2),
+  duration: (3.5 + Math.random() * 4).toFixed(2),
+  drift: Math.round(Math.random() * 18 - 9),
+  glyph: Math.random() > 0.65 ? '✨' : '·',
+}));
+
+function StorySparkles() {
+  return (
+    <div className="story-sparkles" aria-hidden="true">
+      {SPARKLES.map((s) => (
+        <span
+          key={s.id}
+          className="story-sparkle"
+          style={{
+            left: `${s.left}%`,
+            top: `${s.top}%`,
+            fontSize: `${s.size}px`,
+            animationDelay: `${s.delay}s`,
+            animationDuration: `${s.duration}s`,
+            '--drift': `${s.drift}px`,
+          }}
+        >
+          {s.glyph}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export function MigoStoryScreen({ onBack }) {
   const [loadingName, setLoadingName] = useState(true);
   const [name, setName] = useState(null);
@@ -37,11 +73,14 @@ export function MigoStoryScreen({ onBack }) {
     return (
       <div className="story-screen">
         <div className="story-sky" aria-hidden="true" />
+        <StorySparkles />
         <button className="story-back" onClick={onBack}>
           ← Perfil
         </button>
         <div className="story-name-step">
-          <span className="story-glyph">🔮</span>
+          <div className="story-glyph-halo is-accent-violet">
+            <span className="story-glyph">🔮</span>
+          </div>
           <h1 className="story-name-title">Antes de empezar…</h1>
           <p className="story-name-lede">
             ¿Cómo te llamas? Así la historia es tuya, no de cualquiera.
@@ -71,10 +110,13 @@ export function MigoStoryScreen({ onBack }) {
   const page = pages[pageIndex];
   const isFirst = pageIndex === 0;
   const isLast = pageIndex === pages.length - 1;
+  const accent = page.accent || 'violet';
 
   return (
-    <div className="story-screen">
+    <div className={`story-screen is-accent-${accent}`}>
       <div className="story-sky" aria-hidden="true" />
+      <StorySparkles />
+
       <button className="story-back" onClick={onBack}>
         ← Perfil
       </button>
@@ -85,10 +127,19 @@ export function MigoStoryScreen({ onBack }) {
         ))}
       </div>
 
-      <div className="story-book" key={pageIndex}>
-        <span className="story-glyph">{page.glyph}</span>
-        {page.title && <h1 className="story-title">{page.title}</h1>}
-        <p className="story-text">{page.text}</p>
+      <div className="story-frame" key={pageIndex}>
+        <span className="story-frame-corner is-tl" aria-hidden="true">✦</span>
+        <span className="story-frame-corner is-tr" aria-hidden="true">✦</span>
+        <span className="story-frame-corner is-bl" aria-hidden="true">✦</span>
+        <span className="story-frame-corner is-br" aria-hidden="true">✦</span>
+
+        <div className="story-book">
+          <div className={`story-glyph-halo is-accent-${accent}`}>
+            <span className="story-glyph">{page.glyph}</span>
+          </div>
+          {page.title && <h1 className="story-title">{page.title}</h1>}
+          <p className="story-text">{page.text}</p>
+        </div>
       </div>
 
       <div className="story-nav">

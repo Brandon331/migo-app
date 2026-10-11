@@ -8,7 +8,31 @@ cp .env.example .env
 npm run dev
 ```
 
-## Última versión: diseño y UX — sidebar de chat, wizard a pantalla completa, historia de Migo
+## Última versión: arreglo de datos entre cuentas, libro encantado, amigos y personajes
+
+- **Arreglo importante — datos filtrándose entre cuentas:** cerrar sesión y crear/entrar a
+  otra cuenta en el mismo dispositivo ya no muestra las metas, el progreso ni los chats de la
+  cuenta anterior. IndexedDB es compartida por dispositivo, no por cuenta, así que ahora
+  `db.clearLocalData()` se llama al cerrar sesión (`App.jsx`) y, por si el cierre anterior no
+  fue limpio, también se compara el `userId` antes de guardar una sesión nueva
+  (`startFreshSessionFor` en `api.js`) y se limpia si cambió. **Importante: esto solo arregla
+  el código — si ya tenías el bug en producción, necesitas desplegar esta versión (push al
+  repo de GitHub conectado a Render, o build manual) para que el arreglo aplique.**
+- **El libro de Migo ahora se siente de película (`MigoStoryScreen.jsx`):** partículas
+  flotantes tipo destellos sobre el cielo estrellado, un marco con brillo y adornos en las
+  esquinas que pulsan, un halo de color detrás del glifo de cada página, y cada página tiene
+  su propio color de acento (violeta, menta, coral, amarillo) que tiñe sutilmente el cielo.
+- **Amigos, con personajes pixel art:** en Perfil eliges tu personaje (rata, gato, perro,
+  zorro, panda o búho — sprites en `public/characters/`, `characters.js`,
+  `CharacterPicker.jsx`). Desde el menú lateral (ícono ☰, `SideMenu.jsx`) entras a "Amigos"
+  (`FriendsPage.jsx`): generas un código para invitar, o metes el código de alguien más para
+  conectarte. Cada amigo aparece en una cuadrícula con su personaje, su meta principal, su %
+  de avance y un punto que indica si ya hizo algo hoy. Tocas su tarjeta para ver su camino
+  completo de solo lectura (`FriendDetailScreen.jsx`) — no puedes tocar sus pasos, solo
+  verlos.
+- Esto no es offline-first (como el chat): necesita conexión, porque vive en el servidor.
+
+## Versión anterior: sidebar de chat, wizard a pantalla completa, historia de Migo
 
 - **Barra lateral en el chat (`ChatPage.jsx`):** el ícono ☰ abre un panel deslizante con
   "Migo" (chat general) y un hilo por cada meta activa, cada uno con una vista previa de su

@@ -116,7 +116,8 @@ html, body, #root {
 
 .app-content {
   flex: 1 1 auto;
-  padding: 1.75rem 1.1rem 1rem;
+  /* top extra para no chocar con el botón fijo del menú lateral (☰) */
+  padding: calc(1.75rem + 2.5rem) 1.1rem 1rem;
 }
 
 h1, h2, h3 {
@@ -1761,7 +1762,14 @@ button.ghost.is-confirming {
   background-repeat: no-repeat;
   opacity: 0.9;
   animation: story-twinkle 5s ease-in-out infinite;
+  transition: filter 0.7s ease;
 }
+
+/* Cada página tiñe ligeramente el cielo con su color de acento, para que se
+   sienta como un cambio de escena, no solo de texto. */
+.story-screen.is-accent-mint .story-sky { filter: hue-rotate(45deg) saturate(1.1); }
+.story-screen.is-accent-coral .story-sky { filter: hue-rotate(-35deg) saturate(1.15); }
+.story-screen.is-accent-yellow .story-sky { filter: hue-rotate(65deg) saturate(1.15) brightness(1.05); }
 
 @keyframes story-twinkle {
   0%, 100% { opacity: 0.85; }
@@ -1805,16 +1813,67 @@ button.ghost.is-confirming {
   transform: scale(1.3);
 }
 
-.story-book {
+/* La "página" del libro: un panel de cristal encantado, con borde que
+   brilla y un destello que lo recorre despacio. */
+.story-frame {
+  position: relative;
   flex: 1 1 auto;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.8rem 1.4rem;
+  margin: 0.4rem 0;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 24px 60px -24px rgba(98, 91, 255, 0.55),
+    inset 0 0 40px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(3px);
+  animation: story-page-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.story-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.14) 45%, transparent 60%);
+  background-size: 260% 260%;
+  background-position: -60% -60%;
+  animation: story-shimmer-sweep 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes story-shimmer-sweep {
+  0%, 100% { background-position: -60% -60%; }
+  50% { background-position: 60% 60%; }
+}
+
+.story-frame-corner {
+  position: absolute;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  filter: drop-shadow(0 0 5px rgba(131, 240, 196, 0.6));
+  animation: story-twinkle 2.4s ease-in-out infinite;
+}
+
+.story-frame-corner.is-tl { top: 10px; left: 10px; }
+.story-frame-corner.is-tr { top: 10px; right: 10px; animation-delay: 0.6s; }
+.story-frame-corner.is-bl { bottom: 10px; left: 10px; animation-delay: 1.2s; }
+.story-frame-corner.is-br { bottom: 10px; right: 10px; animation-delay: 1.8s; }
+
+.story-book {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  max-width: 440px;
-  padding: 1.5rem 0.5rem;
-  animation: story-page-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  max-width: 400px;
 }
 
 @keyframes story-page-in {
@@ -1822,10 +1881,73 @@ button.ghost.is-confirming {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Halo detrás del glyph de cada página: pulsa despacio con el color de
+   acento de esa escena (violeta, menta, coral, amarillo…). */
+.story-glyph-halo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 86px;
+  height: 86px;
+  margin-bottom: 1.1rem;
+}
+
+.story-glyph-halo::before {
+  content: '';
+  position: absolute;
+  inset: -16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--story-halo, rgba(131, 240, 196, 0.5)) 0%, transparent 72%);
+  filter: blur(1px);
+  animation: story-halo-pulse 2.8s ease-in-out infinite;
+}
+
+.story-glyph-halo.is-accent-violet { --story-halo: rgba(133, 127, 255, 0.55); }
+.story-glyph-halo.is-accent-mint { --story-halo: rgba(131, 240, 196, 0.55); }
+.story-glyph-halo.is-accent-coral { --story-halo: rgba(255, 107, 129, 0.5); }
+.story-glyph-halo.is-accent-yellow { --story-halo: rgba(245, 166, 35, 0.5); }
+
+@keyframes story-halo-pulse {
+  0%, 100% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
 .story-glyph {
-  font-size: 2.3rem;
-  margin-bottom: 1rem;
-  filter: drop-shadow(0 0 12px rgba(131, 240, 196, 0.45));
+  position: relative;
+  z-index: 1;
+  font-size: 2.6rem;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
+  animation: story-glyph-float 3.2s ease-in-out infinite;
+}
+
+@keyframes story-glyph-float {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-6px) rotate(3deg); }
+}
+
+/* Partículas ambiente — titilan y flotan despacio por toda la pantalla. */
+.story-sparkles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.story-sparkle {
+  position: absolute;
+  color: #fff;
+  opacity: 0;
+  animation-name: story-sparkle-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes story-sparkle-float {
+  0% { opacity: 0; transform: translateY(0) translateX(0) scale(0.7); }
+  20% { opacity: 0.9; }
+  50% { opacity: 0.35; transform: translateY(-16px) translateX(var(--drift, 0px)) scale(1); }
+  80% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-30px) translateX(0) scale(0.7); }
 }
 
 .story-title {
@@ -1916,4 +2038,373 @@ button.ghost.is-confirming {
 
 .story-name-step .ghost:hover {
   color: var(--mint-bright);
+}
+
+/* ---------- Menú lateral (secciones extra, ej. Amigos) ---------- */
+
+.side-menu-trigger {
+  position: fixed;
+  top: calc(0.9rem + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(calc(-280px / 2 - 0.5rem - 20px));
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 2px solid var(--hairline);
+  color: var(--fg);
+  box-shadow: var(--shadow);
+  font-size: 1.05rem;
+  z-index: 30;
+}
+
+@media (max-width: 620px) {
+  .side-menu-trigger {
+    left: auto;
+    right: 0.9rem;
+    transform: none;
+  }
+}
+
+.side-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 23, 43, 0.45);
+  z-index: 40;
+  animation: overlay-in 0.2s ease both;
+}
+
+.side-menu {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: auto;
+  width: min(280px, 82vw);
+  background: var(--surface);
+  border-left: 2px solid var(--hairline);
+  box-shadow: -16px 0 32px -16px rgba(23, 23, 43, 0.35);
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0.7rem;
+  gap: 0.3rem;
+  transform: translateX(105%);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.side-menu.is-open {
+  transform: translateX(0);
+}
+
+.side-menu-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--violet-deep);
+  padding: 0.3rem 0.6rem 0.8rem;
+}
+
+/* ---------- Personajes (pixel art) ---------- */
+
+.char-avatar {
+  flex-shrink: 0;
+  border-radius: 14px;
+  background: var(--surface-sunken);
+  border: 2px solid var(--hairline);
+  display: grid;
+  place-content: center;
+  overflow: hidden;
+}
+
+.char-avatar img {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.char-avatar-sm {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+
+.char-avatar-md {
+  width: 52px;
+  height: 52px;
+}
+
+.char-avatar-lg {
+  width: 76px;
+  height: 76px;
+  border-radius: 18px;
+}
+
+.char-avatar.is-empty {
+  color: var(--fg-faint);
+  font-weight: 800;
+  font-family: var(--font-display);
+}
+
+.profile-character-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: flex-start;
+}
+
+.profile-character-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.profile-character-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.profile-character-sub {
+  font-size: 0.8rem;
+  color: var(--fg-soft);
+  font-weight: 600;
+}
+
+.profile-character-card button.secondary {
+  width: 100%;
+}
+
+.profile-character-offline {
+  font-size: 0.78rem;
+  color: var(--fg-faint);
+  margin: 0;
+}
+
+.char-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.char-picker-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--surface-sunken);
+  box-shadow: none;
+  border: 2px solid transparent;
+  padding: 0.6rem 0.4rem;
+  border-radius: 14px;
+}
+
+.char-picker-item:active {
+  transform: none;
+}
+
+.char-picker-item.is-selected {
+  border-color: var(--violet);
+  background: color-mix(in srgb, var(--violet) 12%, var(--surface-sunken));
+}
+
+.char-picker-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--fg-soft);
+  font-family: var(--font-body);
+}
+
+/* ---------- Amigos ---------- */
+
+.friends-connect-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  margin-bottom: 1.5rem;
+}
+
+.friends-connect-card {
+  background: var(--surface);
+  border: 2px solid var(--hairline);
+  border-radius: 16px;
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  box-shadow: var(--shadow);
+}
+
+.friends-connect-card button {
+  width: 100%;
+  font-size: 0.85rem;
+  padding: 0.55rem 0.8rem;
+}
+
+.friends-code-display {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.friends-code {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  letter-spacing: 0.08em;
+  color: var(--violet-deep);
+  font-weight: 800;
+}
+
+.friends-code-hint {
+  font-size: 0.72rem;
+  color: var(--fg-faint);
+  font-weight: 600;
+}
+
+.friends-accept-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.friends-accept-row input {
+  min-width: 0;
+  flex: 1 1 auto;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.friends-accept-row button {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 0 0.9rem;
+}
+
+.friends-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 0.8rem;
+}
+
+.friends-empty {
+  grid-column: 1 / -1;
+}
+
+.friend-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.4rem;
+  background: var(--surface);
+  border: 2px solid var(--hairline);
+  border-radius: 16px;
+  padding: 1rem 0.7rem;
+  box-shadow: var(--shadow);
+  color: var(--fg);
+  font-family: var(--font-body);
+}
+
+.friend-tile:active {
+  transform: none;
+}
+
+.friend-tile-self {
+  background: var(--surface-sunken);
+  box-shadow: none;
+  cursor: default;
+}
+
+.friend-tile-pulse {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--locked);
+}
+
+.friend-tile-pulse.is-active {
+  background: var(--mint);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mint) 30%, transparent);
+}
+
+.friend-tile-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.friend-tile-goal {
+  font-size: 0.72rem;
+  color: var(--fg-soft);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.friend-tile-pct {
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--violet-deep);
+  font-size: 0.95rem;
+}
+
+.friend-tile-more {
+  font-size: 0.68rem;
+  color: var(--fg-faint);
+  font-weight: 700;
+}
+
+.friend-tile-hint {
+  font-size: 0.68rem;
+  color: var(--fg-faint);
+  font-weight: 600;
+}
+
+.friend-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0.3rem 0 1.4rem;
+}
+
+.friend-detail-name {
+  font-size: clamp(1.4rem, 6vw, 1.8rem);
+  text-transform: capitalize;
+}
+
+.friend-goal-card {
+  cursor: default;
+}
+
+.friend-readonly-list .substep {
+  gap: 0.6rem;
+}
+
+.friend-substep-dot {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  margin-top: 0.3rem;
+  border-radius: 50%;
+  border: 2px solid var(--hairline);
+  background: var(--surface);
+}
+
+.friend-substep-dot.is-done {
+  background: var(--mint);
+  border-color: var(--mint);
 }
