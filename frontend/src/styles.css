@@ -259,14 +259,14 @@ button:disabled {
 .mascot-character {
   display: grid;
   place-content: center;
-  border-radius: 50%;
+  border-radius: 26%;
   background: var(--gradient-hero), var(--surface-sunken);
   border: 2px solid var(--hairline);
 }
 
 .mascot-character img {
-  width: 72%;
-  height: 72%;
+  width: 78%;
+  height: 78%;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
@@ -1620,14 +1620,16 @@ button.ghost.is-confirming {
 }
 
 .home-hero .mascot-row {
-  flex-direction: column;
+  /* El marcado trae el personaje primero y el mensaje después, pero aquí
+     queremos el mensaje arriba y el personaje (más grande) abajo. */
+  flex-direction: column-reverse;
   margin-bottom: 0;
-  gap: 0.7rem;
+  gap: 0.9rem;
 }
 
 .home-hero .mascot {
-  width: 108px;
-  height: 108px;
+  width: 156px;
+  height: 156px;
 }
 
 .home-hero .speech-bubble {
@@ -1636,12 +1638,13 @@ button.ghost.is-confirming {
 
 .home-hero .speech-bubble::before {
   left: 50%;
-  top: -7px;
+  top: auto;
+  bottom: -7px;
   transform: translateX(-50%) rotate(45deg);
   border-left: none;
-  border-top: 2px solid var(--hairline);
+  border-top: none;
   border-right: 2px solid var(--hairline);
-  border-bottom: none;
+  border-bottom: 2px solid var(--hairline);
 }
 
 .home-mascot-name {
@@ -2192,6 +2195,12 @@ button.ghost.is-confirming {
   border-radius: 18px;
 }
 
+.char-avatar-xl {
+  width: 92px;
+  height: 92px;
+  border-radius: 22px;
+}
+
 .char-avatar.is-empty {
   color: var(--fg-faint);
   font-weight: 800;
@@ -2335,7 +2344,7 @@ button.ghost.is-confirming {
 
 .friends-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
   gap: 0.8rem;
 }
 
@@ -2344,16 +2353,19 @@ button.ghost.is-confirming {
 }
 
 .friend-tile {
+  /* Tarjetas alargadas, como cartas — más altas que anchas. */
   position: relative;
+  aspect-ratio: 3 / 4.4;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   text-align: center;
   gap: 0.4rem;
   background: var(--surface);
   border: 2px solid var(--hairline);
-  border-radius: 16px;
-  padding: 1rem 0.7rem;
+  border-radius: 20px;
+  padding: 1.1rem 0.7rem 0.9rem;
   box-shadow: var(--shadow);
   color: var(--fg);
   font-family: var(--font-body);
@@ -2384,9 +2396,18 @@ button.ghost.is-confirming {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--mint) 30%, transparent);
 }
 
+.friend-tile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  width: 100%;
+}
+
 .friend-tile-name {
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

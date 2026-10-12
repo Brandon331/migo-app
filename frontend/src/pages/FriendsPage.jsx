@@ -142,9 +142,11 @@ export function FriendsPage({ isOnline }) {
 
           <div className="friends-grid">
             <div className="friend-tile friend-tile-self">
-              <CharacterAvatar characterId={me?.character} size="md" />
-              <span className="friend-tile-name">Tú</span>
-              {!me?.character && <span className="friend-tile-hint">Elige tu personaje en Perfil</span>}
+              <CharacterAvatar characterId={me?.character} size="xl" />
+              <div className="friend-tile-info">
+                <span className="friend-tile-name">Tú</span>
+                {!me?.character && <span className="friend-tile-hint">Elige tu personaje en Perfil</span>}
+              </div>
             </div>
 
             {friends === undefined && <div className="skeleton skeleton-goal" />}
@@ -161,19 +163,21 @@ export function FriendsPage({ isOnline }) {
               return (
                 <button key={f.id} className="friend-tile" onClick={() => openFriend(f)}>
                   <span className={`friend-tile-pulse ${f.didSomethingToday ? 'is-active' : ''}`} />
-                  <CharacterAvatar characterId={f.character} size="md" />
-                  <span className="friend-tile-name">{f.email.split('@')[0]}</span>
-                  {mainGoal ? (
-                    <>
-                      <span className="friend-tile-goal">{mainGoal.title}</span>
-                      <span className="friend-tile-pct">{mainGoal.pct}%</span>
-                    </>
-                  ) : (
-                    <span className="friend-tile-goal">Sin metas activas</span>
-                  )}
-                  {f.goals.length > 1 && (
-                    <span className="friend-tile-more">+{f.goals.length - 1} más</span>
-                  )}
+                  <CharacterAvatar characterId={f.character} size="xl" />
+                  <div className="friend-tile-info">
+                    <span className="friend-tile-name">{f.email.split('@')[0]}</span>
+                    {mainGoal ? (
+                      <>
+                        <span className="friend-tile-goal">{mainGoal.title}</span>
+                        <span className="friend-tile-pct">{mainGoal.pct}%</span>
+                      </>
+                    ) : (
+                      <span className="friend-tile-goal">Sin metas activas</span>
+                    )}
+                    {f.goals.length > 1 && (
+                      <span className="friend-tile-more">+{f.goals.length - 1} más</span>
+                    )}
+                  </div>
                 </button>
               );
             })}
