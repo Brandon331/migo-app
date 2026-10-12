@@ -3,8 +3,10 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db.js';
 import { api } from '../api.js';
 import { Mascot } from '../components/Mascot.jsx';
+import { useCompanionCharacter } from '../hooks/useCompanionCharacter.js';
 
 export function ChatPage({ isOnline, goalId, onSelectGoal }) {
+  const character = useCompanionCharacter();
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
@@ -183,6 +185,7 @@ export function ChatPage({ isOnline, goalId, onSelectGoal }) {
           {!loading && threadMessages.length === 0 && (
             <div className="chat-empty">
               <Mascot
+                character={character}
                 message={
                   currentGoal
                     ? `Dime qué necesitas sobre "${currentGoal.title}" — consejo, ajustar el plan, lo que sea.`

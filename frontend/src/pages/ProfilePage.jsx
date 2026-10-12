@@ -1,29 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Mascot } from '../components/Mascot.jsx';
 import { MigoStoryScreen } from './MigoStoryScreen.jsx';
 import { CharacterAvatar } from '../components/CharacterAvatar.jsx';
 import { CharacterPicker } from '../components/CharacterPicker.jsx';
 import { api } from '../api.js';
+import { setCharacterLocal } from '../db.js';
+import { useCompanionCharacter } from '../hooks/useCompanionCharacter.js';
 
 export function ProfilePage({ session, onLogout, isOnline }) {
   const [storyOpen, setStoryOpen] = useState(false);
-  const [character, setCharacter] = useState(undefined);
+  const character = useCompanionCharacter();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (!isOnline) return;
-    api
-      .fetchMe()
-      .then((me) => setCharacter(me.character || null))
-      .catch(() => setCharacter(null));
-  }, [isOnline]);
 
   async function handlePick(id) {
     setSaving(true);
     try {
       const updated = await api.updateCharacter(id);
-      setCharacter(updated.character);
+      // Se cachea local de una vez — así Migo cambia de cara en Inicio y Chat
+      // sin esperar al siguiente fetchMe.
+      await setCharacterLocal(updated.character || null);
       setPickerOpen(false);
     } catch {
       // si falla, se queda como estaba — no hay nada local que desincronizar
@@ -39,7 +35,7 @@ export function ProfilePage({ session, onLogout, isOnline }) {
   return (
     <div>
       <h1>Perfil</h1>
-      <Mascot message="Aquí está lo tuyo. Sin sorpresas." />
+      <Mascot message="Aquí está lo tuyo. Sin sorpresas." character={character} />
 
       <div className="profile-card">
         <span className="profile-label">Cuenta</span>

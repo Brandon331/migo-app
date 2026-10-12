@@ -6,8 +6,10 @@ import { VitalityBar } from '../components/VitalityBar.jsx';
 import { StreakStrip } from '../components/StreakStrip.jsx';
 import { computeVitality } from '../vitality.js';
 import { pickMigoHomeLine } from '../migoPhrases.js';
+import { useCompanionCharacter } from '../hooks/useCompanionCharacter.js';
 
 export function HomePage({ onGoToMetas }) {
+  const character = useCompanionCharacter();
   const goals = useLiveQuery(() => db.goals.orderBy('updatedAt').reverse().toArray(), []);
   const milestones = useLiveQuery(() => db.milestones.toArray(), []);
   const substeps = useLiveQuery(() => db.substeps.toArray(), []);
@@ -36,7 +38,7 @@ export function HomePage({ onGoToMetas }) {
   return (
     <div className="home-page">
       <div className="home-hero">
-        <Mascot message={loading ? null : line} celebrating={vitality.trend === 'up'} />
+        <Mascot message={loading ? null : line} celebrating={vitality.trend === 'up'} character={character} />
         <h1 className="home-mascot-name">Migo</h1>
       </div>
 

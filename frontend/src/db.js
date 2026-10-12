@@ -89,3 +89,18 @@ export async function setCompanionName(name) {
     await db.session.put({ ...session, companionName: name });
   }
 }
+
+// El personaje elegido (rata/gato/perro/zorro/panda/búho) también define
+// cómo se ve Migo para esa cuenta — se cachea local para que Migo se vea
+// bien desde el primer render y sin conexión, no solo en Perfil.
+export async function getCharacterLocal() {
+  const session = await getSession();
+  return session?.character || null;
+}
+
+export async function setCharacterLocal(character) {
+  const session = await getSession();
+  if (session) {
+    await db.session.put({ ...session, character });
+  }
+}

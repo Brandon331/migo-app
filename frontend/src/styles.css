@@ -4,6 +4,7 @@
    Tipografía: Baloo 2 (display, redondeada, con peso) + Inter (cuerpo/UI). */
 :root {
   --bg: #f7f7fc;
+  --bg-page: #e7e6f7;
   --surface: #ffffff;
   --surface-sunken: #ecebfa;
   --fg: #17172b;
@@ -37,6 +38,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #17172b;
+    --bg-page: #0d0d1a;
     --surface: #1f1f38;
     --surface-sunken: #23233f;
     --fg: #f7f7fc;
@@ -65,6 +67,7 @@
 
 :root[data-theme="dark"] {
   --bg: #17172b;
+  --bg-page: #0d0d1a;
   --surface: #1f1f38;
   --surface-sunken: #23233f;
   --fg: #f7f7fc;
@@ -110,24 +113,31 @@ body {
 
 html, body, #root {
   height: 100%;
+  /* 100% encadenado puede quedar más alto que la ventana visible cuando el
+     navegador móvil muestra su propia barra — dvh sigue el viewport real,
+     así el contenido y el menú lateral no terminan tapados por esa barra. */
+  min-height: 100dvh;
 }
 
 #root {
   max-width: 560px;
   margin: 0 auto;
   padding: 0;
+  position: relative;
 }
 
 .app-shell {
-  min-height: 100%;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
 
 .app-content {
   flex: 1 1 auto;
-  /* top extra para no chocar con el botón fijo del menú lateral (☰) */
-  padding: calc(1.75rem + 2.5rem) 1.1rem 1rem;
+  /* top extra para no chocar con el botón fijo del menú lateral (☰); abajo,
+     ya no hay barra de navegación fija — solo aire cómodo + el área segura
+     del dispositivo. */
+  padding: calc(1.75rem + 2.5rem) 1.1rem calc(2rem + env(safe-area-inset-bottom, 0px));
 }
 
 h1, h2, h3 {
@@ -241,6 +251,24 @@ button:disabled {
 
 .mascot.is-celebrating {
   animation: celebrate 0.6s ease-in-out 2;
+}
+
+/* Cuando Migo es el personaje elegido (rata/gato/perro/zorro/panda/búho) en
+   vez de la gota violeta por defecto — mismo sprite pixel art que ven los
+   amigos, sobre un halo suave para que no se vea plano. */
+.mascot-character {
+  display: grid;
+  place-content: center;
+  border-radius: 50%;
+  background: var(--gradient-hero), var(--surface-sunken);
+  border: 2px solid var(--hairline);
+}
+
+.mascot-character img {
+  width: 72%;
+  height: 72%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
 @keyframes celebrate {
@@ -1079,59 +1107,6 @@ button:disabled {
   font-weight: 700;
   color: var(--violet-deep);
   margin: 0;
-}
-
-/* ---------- Navegación inferior ---------- */
-
-.bottom-nav {
-  position: sticky;
-  bottom: 0;
-  display: flex;
-  justify-content: space-around;
-  background: var(--surface);
-  border-top: 2px solid var(--hairline);
-  border-radius: 20px 20px 0 0;
-  padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
-  box-shadow: 0 -4px 16px -8px rgba(35, 21, 66, 0.15);
-}
-
-.bottom-nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-  background: transparent;
-  box-shadow: none;
-  color: var(--fg-faint);
-  padding: 0.4rem 0.3rem;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.7rem;
-}
-
-.bottom-nav-item:active {
-  transform: none;
-}
-
-.bottom-nav-item.is-active {
-  color: var(--violet);
-}
-
-.bottom-nav-icon {
-  font-size: 1.3rem;
-  line-height: 1;
-}
-
-@media (max-width: 360px) {
-  .bottom-nav-item {
-    font-size: 0.62rem;
-    padding: 0.35rem 0.15rem;
-  }
-
-  .bottom-nav-icon {
-    font-size: 1.15rem;
-  }
 }
 
 /* ---------- Fechas / badges de atraso ---------- */
@@ -2106,11 +2081,14 @@ button.ghost.is-confirming {
 
 /* ---------- Menú lateral (secciones extra, ej. Amigos) ---------- */
 
+/* En móvil estos tres son position:fixed respecto a la ventana real. En
+   escritorio, la app vive dentro de una tarjeta centrada (ver "Marco de
+   escritorio" más abajo) y pasan a position:absolute respecto a esa
+   tarjeta, para no quedar flotando sueltos sobre la página. */
 .side-menu-trigger {
   position: fixed;
   top: calc(0.9rem + env(safe-area-inset-top, 0px));
-  left: 50%;
-  transform: translateX(calc(-280px / 2 - 0.5rem - 20px));
+  right: 0.9rem;
   width: 40px;
   height: 40px;
   padding: 0;
@@ -2121,14 +2099,6 @@ button.ghost.is-confirming {
   box-shadow: var(--shadow);
   font-size: 1.05rem;
   z-index: 30;
-}
-
-@media (max-width: 620px) {
-  .side-menu-trigger {
-    left: auto;
-    right: 0.9rem;
-    transform: none;
-  }
 }
 
 .side-menu-backdrop {
@@ -2156,6 +2126,7 @@ button.ghost.is-confirming {
   gap: 0.3rem;
   transform: translateX(105%);
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow-y: auto;
 }
 
 .side-menu.is-open {
@@ -2170,6 +2141,19 @@ button.ghost.is-confirming {
   font-weight: 700;
   color: var(--violet-deep);
   padding: 0.3rem 0.6rem 0.8rem;
+}
+
+.side-menu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.side-menu-divider {
+  height: 2px;
+  background: var(--hairline);
+  margin: 0.6rem 0.6rem;
+  flex-shrink: 0;
 }
 
 /* ---------- Personajes (pixel art) ---------- */
@@ -2471,4 +2455,58 @@ button.ghost.is-confirming {
 .friend-substep-dot.is-done {
   background: var(--mint);
   border-color: var(--mint);
+}
+
+/* ---------- Marco de escritorio ---------- */
+
+/* En pantallas angostas (celular) la app ES la ventana: #root ocupa todo
+   el ancho y todo lo "fixed" (menú lateral, wizard, historia de Migo...)
+   se posiciona contra la ventana real, que es lo mismo que contra #root.
+   En pantallas anchas eso se veía roto: una columna angosta perdida en
+   medio de una página gris, con el botón del menú y el menú mismo
+   flotando sueltos, sin relación visual con la columna. Aquí la app pasa
+   a vivir dentro de una tarjeta propia, centrada y con su propio scroll,
+   y todo lo "fixed" se redefine respecto a esa tarjeta en vez de la
+   ventana del navegador. */
+@media (min-width: 640px) {
+  body {
+    background: var(--bg-page);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    padding: 2.5rem 1rem;
+  }
+
+  #root {
+    height: min(880px, 92dvh);
+    margin: 0;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    box-shadow: 0 40px 80px -30px rgba(23, 23, 43, 0.45), 0 2px 0 rgba(23, 23, 43, 0.06);
+  }
+
+  .app-shell {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .app-content {
+    overflow-y: auto;
+  }
+
+  .wizard-overlay,
+  .chat-sidebar-backdrop,
+  .chat-sidebar,
+  .story-screen,
+  .side-menu-trigger,
+  .side-menu-backdrop,
+  .side-menu {
+    position: absolute;
+  }
+
+  .side-menu-trigger {
+    top: 0.9rem;
+  }
 }

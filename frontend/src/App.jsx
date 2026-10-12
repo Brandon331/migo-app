@@ -7,7 +7,6 @@ import { ProgressPage } from './pages/ProgressPage.jsx';
 import { ChatPage } from './pages/ChatPage.jsx';
 import { ProfilePage } from './pages/ProfilePage.jsx';
 import { FriendsPage } from './pages/FriendsPage.jsx';
-import { BottomNav } from './components/BottomNav.jsx';
 import { SideMenu } from './components/SideMenu.jsx';
 import { useSync } from './hooks/useSync.js';
 
@@ -59,7 +58,7 @@ export default function App() {
         open={sideMenuOpen}
         onClose={() => setSideMenuOpen(false)}
         active={tab}
-        onNavigate={setTab}
+        onNavigate={handleTabChange}
       />
 
       <div className="app-content">
@@ -76,8 +75,6 @@ export default function App() {
         )}
         {tab === 'friends' && <FriendsPage isOnline={isOnline} />}
       </div>
-
-      <BottomNav active={tab} onChange={handleTabChange} />
     </div>
   );
 }
