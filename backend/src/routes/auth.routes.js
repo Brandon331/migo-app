@@ -11,7 +11,7 @@ import { requireAuth } from '../middleware/auth.middleware.js';
 
 export const authRouter = Router();
 
-export const CHARACTERS = ['rat', 'cat', 'dog', 'fox', 'panda', 'owl'];
+export const CHARACTERS = ['ratita','rat', 'cat', 'dog', 'fox', 'panda', 'owl'];
 
 authRouter.post('/register', async (req, res) => {
   const { email, password } = req.body;

@@ -2,6 +2,7 @@
 // tus amigos en la sección de Amigos, separado del propio Migo (que sigue
 // siendo el compañero violeta de siempre, no se elige).
 export const CHARACTERS = [
+  { id: 'ratita', label: 'Ratita', img: '/characters/ratita.png' },
   { id: 'rat', label: 'Rata', img: '/characters/rat.png' },
   { id: 'cat', label: 'Gato', img: '/characters/cat.png' },
   { id: 'dog', label: 'Perro', img: '/characters/dog.png' },
