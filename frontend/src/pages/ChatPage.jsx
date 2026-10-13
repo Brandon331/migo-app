@@ -161,7 +161,7 @@ export function ChatPage({ isOnline, goalId, onSelectGoal }) {
       <div className="chat-page">
         <div className="chat-header">
           <button className="chat-sidebar-toggle" onClick={() => setSidebarOpen(true)} aria-label="Ver chats">
-            ☰
+            💬
           </button>
           <div className="chat-header-text">
             {currentGoal ? (

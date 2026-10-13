@@ -124,6 +124,11 @@ html, body, #root {
   margin: 0 auto;
   padding: 0;
   position: relative;
+  /* El relleno real de .app-content, en variables — así una pantalla como
+     el chat puede calcular "toda la altura visible menos ese relleno" sin
+     repetir los números en dos lugares distintos. */
+  --content-pad-top: calc(1.75rem + 2.5rem);
+  --content-pad-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
 }
 
 .app-shell {
@@ -137,7 +142,7 @@ html, body, #root {
   /* top extra para no chocar con el botón fijo del menú lateral (☰); abajo,
      ya no hay barra de navegación fija — solo aire cómodo + el área segura
      del dispositivo. */
-  padding: calc(1.75rem + 2.5rem) 1.1rem calc(2rem + env(safe-area-inset-bottom, 0px));
+  padding: var(--content-pad-top) 1.1rem var(--content-pad-bottom);
 }
 
 h1, h2, h3 {
@@ -1346,16 +1351,22 @@ button.ghost.is-confirming {
 .chat-layout {
   position: relative;
   margin: 0 -1.1rem;
+  display: flex;
+  flex-direction: column;
+  /* Altura real disponible bajo el header fijo, no un porcentaje a ciegas —
+     así con pocos mensajes el input queda pegado abajo de una vez, en vez
+     de flotar en medio de la pantalla con aire de sobra debajo. Con muchos
+     mensajes esto es solo un piso: la columna crece y la página hace scroll
+     normal, con el input sticky al fondo de la ventana. */
+  min-height: calc(100dvh - var(--content-pad-top) - var(--content-pad-bottom));
 }
 
 .chat-page {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   padding: 0 1.1rem;
-  /* Sin alturas fijas en vh: con el teclado abierto en móvil, vh brinca y
-     hace que el chat se "encoja" por arriba. Dejamos que la página fluya
-     normal y el input quede pegado abajo con sticky. */
-  min-height: 60dvh;
+  min-height: 0;
 }
 
 .chat-header {
@@ -2353,19 +2364,21 @@ button.ghost.is-confirming {
 }
 
 .friend-tile {
-  /* Tarjetas alargadas, como cartas — más altas que anchas. */
+  /* Tarjetas alargadas, como cartas — más altas que anchas, con el
+     personaje a toda plana arriba (sin aire alrededor) y el texto pegado
+     abajo, no flotando en medio de espacio vacío. */
   position: relative;
   aspect-ratio: 3 / 4.4;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
+  align-items: stretch;
   text-align: center;
-  gap: 0.4rem;
+  gap: 0;
   background: var(--surface);
   border: 2px solid var(--hairline);
   border-radius: 20px;
-  padding: 1.1rem 0.7rem 0.9rem;
+  padding: 0;
+  overflow: hidden;
   box-shadow: var(--shadow);
   color: var(--fg);
   font-family: var(--font-body);
@@ -2381,6 +2394,24 @@ button.ghost.is-confirming {
   cursor: default;
 }
 
+.friend-tile .char-avatar {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid var(--hairline);
+  background: var(--gradient-hero), var(--surface-sunken);
+}
+
+.friend-tile .char-avatar img {
+  width: 82%;
+  height: 82%;
+  object-fit: contain;
+}
+
 .friend-tile-pulse {
   position: absolute;
   top: 0.6rem;
@@ -2389,20 +2420,24 @@ button.ghost.is-confirming {
   height: 9px;
   border-radius: 50%;
   background: var(--locked);
+  z-index: 1;
+  box-shadow: 0 0 0 2px var(--surface);
 }
 
 .friend-tile-pulse.is-active {
   background: var(--mint);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mint) 30%, transparent);
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 5px color-mix(in srgb, var(--mint) 30%, transparent);
 }
 
 .friend-tile-info {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  justify-content: center;
+  gap: 0.2rem;
   min-width: 0;
   width: 100%;
+  padding: 0.65rem 0.6rem 0.8rem;
 }
 
 .friend-tile-name {
